@@ -8,7 +8,7 @@ import { PatientFormComponent } from '../dashboard/components/patient-form/patie
   standalone: true,
   imports: [PatientFormComponent],
   template: `
-    <div class="h-full p-8 bg-gray-50">
+    <div class="h-full overflow-y-auto p-8 bg-gray-50">
       <div class="max-w-4xl mx-auto">
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-800 mb-2">Análisis de Riesgo</h1>

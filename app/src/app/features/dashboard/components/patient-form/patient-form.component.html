@@ -1,0 +1,110 @@
+<div class="p-6 bg-gray-50/50">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">Datos para el backend</h2>
+        <p class="text-gray-500">Rellena el formulario o importa un JSON con los parámetros del modelo</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <input
+          #fileInput
+          type="file"
+          accept="application/json,.json"
+          class="hidden"
+          (change)="onJsonFileSelected($event)"
+        />
+        <button mat-stroked-button type="button" color="primary" class="bg-white" (click)="fileInput.click()">
+          <mat-icon class="mr-2">upload_file</mat-icon>
+          Importar JSON
+        </button>
+      </div>
+    </div>
+
+    <form [formGroup]="form" class="grid grid-cols-1 gap-6">
+      <mat-card class="p-4 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <mat-icon class="text-blue-500">data_object</mat-icon>
+          JSON de entrada (opcional)
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Pega aquí un JSON</mat-label>
+            <textarea
+              matInput
+              rows="6"
+              [value]="jsonInput"
+              (input)="onJsonTextChanged($any($event.target).value)"
+              placeholder='{"edad": 68, "imc": 39.4, ...}'
+            ></textarea>
+          </mat-form-field>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button mat-stroked-button type="button" color="primary" class="bg-white" (click)="applyJsonInput()">
+              <mat-icon class="mr-2">file_download</mat-icon>
+              Parsear JSON
+            </button>
+            <button mat-stroked-button type="button" class="bg-white" (click)="clearForm()">
+              <mat-icon class="mr-2">restart_alt</mat-icon>
+              Limpiar
+            </button>
+            <span *ngIf="jsonParseError" class="text-sm text-red-600">{{ jsonParseError }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <ng-container *ngFor="let group of fieldGroups">
+        <mat-card class="p-4 shadow-sm border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+            <mat-icon class="text-indigo-500">{{ group.icon }}</mat-icon>
+            {{ group.title }}
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ng-container *ngFor="let field of group.fields">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+
+                <ng-container [ngSwitch]="field.kind">
+                  <mat-select *ngSwitchCase="'select'" [formControlName]="field.key">
+                    <mat-option *ngFor="let opt of (field.options || [])" [value]="opt.value">
+                      <span class="font-mono text-xs text-gray-500 mr-2">{{ opt.value }}</span>
+                      {{ opt.label }}
+                    </mat-option>
+                  </mat-select>
+
+                  <input
+                    *ngSwitchCase="'number'"
+                    matInput
+                    type="number"
+                    [formControlName]="field.key"
+                    [placeholder]="field.placeholder || ''"
+                  />
+                </ng-container>
+
+                <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+                <mat-error *ngIf="form.get(field.key)?.touched && form.get(field.key)?.hasError('required')">
+                  Obligatorio
+                </mat-error>
+              </mat-form-field>
+            </ng-container>
+          </div>
+        </mat-card>
+      </ng-container>
+
+      <div class="flex justify-end">
+        <button
+          mat-raised-button
+          color="primary"
+          class="px-8 py-2 !h-12 text-lg"
+          [disabled]="form.invalid"
+          (click)="onAnalyze()"
+        >
+          <mat-icon class="mr-2">send</mat-icon>
+          Enviar al backend
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
