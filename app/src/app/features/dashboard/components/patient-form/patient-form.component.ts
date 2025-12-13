@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Output } from "@angular/core";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -7,6 +8,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
+import { catchError, finalize, throwError, timeout } from "rxjs";
+import { environment } from "../../../../../environments/environment";
 
 const PATIENT_FIELD_KEYS = [
   "edad",
@@ -39,11 +42,24 @@ const PATIENT_FIELD_KEYS = [
   "estudio_genetico",
   "Tratamiento_RT",
   "Tratamiento_sistemico",
+  "libre_enferm",
+  "causa_muerte",
 ] as const;
 
 type PatientFieldKey = (typeof PATIENT_FIELD_KEYS)[number];
 
 type PatientBackendPayload = Record<PatientFieldKey, number | null>;
+
+type ProcesarDatosRequest = Record<PatientFieldKey, number>;
+
+type ProcesarDatosResponse = {
+  prediccionClase: number;
+  prob1: number;
+  prob2: number;
+  prob3: number;
+  prob4: number;
+  prob5: number;
+};
 
 type FieldKind = "number" | "select";
 
@@ -59,6 +75,7 @@ type FieldDef = {
   required?: boolean;
   placeholder?: string;
   hint?: string;
+  defaultValue?: number | null;
   options?: ReadonlyArray<SelectOption>;
 };
 
@@ -107,7 +124,8 @@ const BETA_CATENINA_OPTIONS: ReadonlyArray<SelectOption> = [
 
 const FIGO_2023_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 1, label: "IA1" },
-  { value: 2, label: "IA2" },  { value: 3, label: "IA3" },
+  { value: 2, label: "IA2" },
+  { value: 3, label: "IA3" },
   { value: 4, label: "IB" },
   { value: 5, label: "IC" },
   { value: 6, label: "IIA" },
@@ -131,6 +149,23 @@ const FIGO_2018_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 7, label: "IIIc2" },
   { value: 8, label: "IVa" },
   { value: 9, label: "IVb" },
+];
+
+const EST_PCTE_OPTIONS: ReadonlyArray<SelectOption> = [
+  { value: 1, label: "Viva" },
+  { value: 2, label: "Muerta" },
+  { value: 3, label: "Desconocido" },
+];
+
+const CAUSA_MUERTE_OPTIONS: ReadonlyArray<SelectOption> = [
+  { value: 0, label: "Por el cáncer de endometrio" },
+  { value: 1, label: "Otras causas" },
+];
+
+const LIBRE_ENFERM_OPTIONS: ReadonlyArray<SelectOption> = [
+  { value: 0, label: "No" },
+  { value: 1, label: "Sí" },
+  { value: 2, label: "Desconocido" },
 ];
 
 const TTO_RECIDIVA_OPTIONS: ReadonlyArray<SelectOption> = [
@@ -258,6 +293,9 @@ const FIELD_GROUPS: ReadonlyArray<FieldGroup> = [
       { key: "numero_de_recid", label: "Número de recidiva", kind: "number", placeholder: "1" },
       { key: "tto_recidiva", label: "Tratamiento de la recidiva", kind: "select", required: true, options: TTO_RECIDIVA_OPTIONS },
       { key: "Reseccion_macroscopica_complet", label: "Resección macroscópica completa", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "est_pcte", label: "Estado actual de la paciente", kind: "select", required: true, options: EST_PCTE_OPTIONS },
+      { key: "libre_enferm", label: "Libre de enfermedad", kind: "select", required: true, options: LIBRE_ENFERM_OPTIONS, defaultValue: 2 },
+      { key: "causa_muerte", label: "Causa de muerte", kind: "select", required: true, options: CAUSA_MUERTE_OPTIONS, defaultValue: 2 },
     ],
   },
 ];
@@ -280,23 +318,45 @@ const ALL_FIELDS: ReadonlyArray<FieldDef> = FIELD_GROUPS.flatMap((g) => g.fields
   templateUrl: "./patient-form.component.html",
 })
 export class PatientFormComponent {
-  @Output() analyze = new EventEmitter<PatientBackendPayload>();
+  @Output() analyze = new EventEmitter<{ request: ProcesarDatosRequest; response: ProcesarDatosResponse }>();
 
   readonly fieldGroups = FIELD_GROUPS;
   jsonInput = "";
   jsonParseError: string | null = null;
+  submitError: string | null = null;
+  isSubmitting = false;
+  lastResponse: ProcesarDatosResponse | null = null;
 
   form = this.fb.group(
     Object.fromEntries(
-      ALL_FIELDS.map(({ key, required }) => [key, required ? [null, Validators.required] : [null]]),
+      ALL_FIELDS.map(({ key, required, defaultValue }) => [
+        key,
+        required ? [defaultValue ?? null, Validators.required] : [defaultValue ?? null],
+      ]),
     ) as Record<PatientFieldKey, any>,
   );
 
-  constructor(private fb: FormBuilder) {}
+  private readonly apiBaseUrl = environment.apiBaseUrl.replace(/\/+$/, "");
+  private readonly defaultFormValues = Object.fromEntries(
+    ALL_FIELDS.map(({ key, defaultValue }) => [key, defaultValue ?? null]),
+  ) as Record<PatientFieldKey, number | null>;
+
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly http: HttpClient,
+  ) {}
 
   clearForm(): void {
-    this.form.reset();
+    this.form.reset(this.defaultFormValues);
     this.jsonParseError = null;
+    this.submitError = null;
+    this.lastResponse = null;
+  }
+
+  onJsonTextChanged(next: string): void {
+    this.jsonInput = next ?? "";
+    this.jsonParseError = null;
+    this.submitError = null;
   }
 
   async onJsonFileSelected(event: Event): Promise<void> {
@@ -306,6 +366,7 @@ export class PatientFormComponent {
     try {
       this.jsonInput = await file.text();
       this.jsonParseError = null;
+      this.submitError = null;
       this.applyJsonInput();
     } catch {
       this.jsonParseError = "No se pudo leer el archivo.";
@@ -316,6 +377,7 @@ export class PatientFormComponent {
 
   applyJsonInput(): void {
     this.jsonParseError = null;
+    this.submitError = null;
     const raw = this.jsonInput.trim();
     if (!raw) return;
 
@@ -335,6 +397,11 @@ export class PatientFormComponent {
 
     const patch: Partial<PatientBackendPayload> = {};
     for (const { key } of ALL_FIELDS) {
+      if (key === "estudio_genetico" && !Object.prototype.hasOwnProperty.call(obj, key)) {
+        const inferred = this.inferEstudioGeneticoFromLegacyFlags(obj);
+        if (inferred !== null) patch[key] = inferred;
+        continue;
+      }
       if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
       patch[key] = this.coerceNumber((obj as any)[key]);
     }
@@ -385,18 +452,78 @@ export class PatientFormComponent {
     return null;
   }
 
-  private getPayload(): PatientBackendPayload {
-    const raw = this.form.getRawValue() as Record<string, unknown>;
-    const payload: Partial<PatientBackendPayload> = {};
-    for (const { key } of ALL_FIELDS) payload[key] = this.coerceNumber(raw[key]);
-    return payload as PatientBackendPayload;
+  private inferEstudioGeneticoFromLegacyFlags(obj: Record<string, unknown>): number | null {
+    const mapping: ReadonlyArray<{ key: string; code: number }> = [
+      { key: "estudio_genetico_r01", code: 1 },
+      { key: "estudio_genetico_r02", code: 2 },
+      { key: "estudio_genetico_r03", code: 3 },
+      { key: "estudio_genetico_r04", code: 4 },
+      { key: "estudio_genetico_r05", code: 5 },
+      { key: "estudio_genetico_r06", code: 6 },
+    ];
+
+    for (const { key, code } of mapping) {
+      if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+      const v = this.coerceNumber(obj[key]);
+      if (v === null) continue;
+      if (v === 1 || v === code) return code;
+    }
+    return null;
   }
 
-  onAnalyze(): void {
-    if (this.form.valid) {
-      this.analyze.emit(this.getPayload());
-    } else {
-      this.form.markAllAsTouched();
+  private buildRequestPayload(): ProcesarDatosRequest {
+    const raw = this.form.getRawValue() as Record<string, unknown>;
+    const payload: Partial<ProcesarDatosRequest> = {};
+    for (const key of PATIENT_FIELD_KEYS) {
+      const coerced = this.coerceNumber(raw[key]);
+      payload[key] = coerced ?? 0;
     }
+    return payload as ProcesarDatosRequest;
+  }
+
+  submitToBackend(): void {
+    this.jsonParseError = null;
+    this.submitError = null;
+    this.lastResponse = null;
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const request = this.buildRequestPayload();
+    this.isSubmitting = true;
+
+    this.http
+      .post<ProcesarDatosResponse>(`${this.apiBaseUrl}/procesarDatos`, request)
+      .pipe(
+        timeout({ first: environment.requestTimeoutMs }),
+        catchError((err) => throwError(() => this.humanizeSubmitError(err))),
+        finalize(() => {
+          this.isSubmitting = false;
+        }),
+      )
+      .subscribe({
+        next: (resp) => {
+          this.lastResponse = resp;
+          this.analyze.emit({ request, response: resp });
+        },
+        error: (err: Error) => {
+          this.submitError = err.message;
+        },
+      });
+  }
+
+  private humanizeSubmitError(err: unknown): Error {
+    if (err instanceof HttpErrorResponse) {
+      const maybeDetail = (err.error && typeof err.error === "object" ? (err.error as any).detail : null) as unknown;
+      if (typeof maybeDetail === "string" && maybeDetail.trim()) return new Error(maybeDetail.trim());
+      if (Array.isArray(maybeDetail)) return new Error("Datos inválidos (422). Revisa los campos.");
+      if (err.status === 401) return new Error("No autorizado. Inicia sesión de nuevo.");
+      if (err.status) return new Error(`Error del backend (${err.status}).`);
+      return new Error("No se pudo conectar con el backend.");
+    }
+    if (err instanceof Error) return err;
+    return new Error("Error inesperado.");
   }
 }

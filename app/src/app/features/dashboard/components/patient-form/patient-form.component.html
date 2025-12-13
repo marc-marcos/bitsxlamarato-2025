@@ -68,14 +68,19 @@
       <div class="flex justify-end">
         <button
           mat-raised-button
+          type="button"
           color="primary"
           class="px-8 py-2 !h-12 text-lg"
-          [disabled]="form.invalid"
-          (click)="onAnalyze()"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="submitToBackend()"
         >
-          <mat-icon class="mr-2">send</mat-icon>
-          Enviar al backend
+          <mat-icon class="mr-2">{{ isSubmitting ? 'hourglass_top' : 'cloud_upload' }}</mat-icon>
+          {{ isSubmitting ? 'Enviando...' : 'Procesar en backend' }}
         </button>
+      </div>
+      <div *ngIf="submitError" class="text-sm text-red-600 text-right -mt-4">{{ submitError }}</div>
+      <div *ngIf="lastResponse" class="text-sm text-gray-600 text-right -mt-4">
+        Resultado: clase {{ lastResponse.prediccionClase }}
       </div>
     </form>
   </div>

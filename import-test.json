@@ -27,5 +27,7 @@
     "Tratamiento_sistemico": 0,
     "numero_de_recid": 0,
     "tto_recidiva": 0,
-    "Reseccion_macroscopica_complet": 1
+    "Reseccion_macroscopica_complet": 1,
+    "causa_muerte": 0,
+    "est_pcte": 3
 }
