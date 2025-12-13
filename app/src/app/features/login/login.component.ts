@@ -60,7 +60,7 @@ export class LoginComponent {
       .login(username, password, false)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => this.router.navigateByUrl("/dashboard"),
+        next: () => this.router.navigateByUrl("/analyze"),
         error: (err: unknown) => {
           this.error = err instanceof Error ? err.message : String(err);
         },

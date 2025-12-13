@@ -1,14 +1,24 @@
 import { Routes } from "@angular/router";
-import { DashboardComponent } from "./features/dashboard/dashboard.component";
+import { authGuard } from "./core/auth/auth.guard";
+import { AnalyzeComponent } from "./features/analyze/analyze.component";
 import { LoginComponent } from "./features/login/login.component";
 import { RegisterComponent } from "./features/register/register.component";
-import { authGuard } from "./core/auth/auth.guard";
+import { ResultsComponent } from "./features/results/results.component";
+import { MainLayoutComponent } from "./layout/main-layout/main-layout.component";
 
 export const routes: Routes = [
-  { path: "", pathMatch: "full", redirectTo: "login" },
+  { path: "", pathMatch: "full", redirectTo: "analyze" },
   { path: "login", component: LoginComponent },
   { path: "register", component: RegisterComponent },
-  { path: "dashboard", component: DashboardComponent, canActivate: [authGuard] },
+  {
+    path: "",
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: "analyze", component: AnalyzeComponent },
+      { path: "results", component: ResultsComponent },
+    ]
+  },
   { path: "**", redirectTo: "login" },
 ];
 
