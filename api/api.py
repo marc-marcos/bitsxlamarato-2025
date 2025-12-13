@@ -215,6 +215,8 @@ def conversar(datos: HiloChat):
             2. Distingue si el usuario aporta "Clasificación Molecular" (POLEmut, MMRd, p53abn) o si es "Desconocida". Si no lo dice, asume desconocida o pregunta.
             3. Si el usuario te da un nivel de riesgo (Bajo, Intermedio, Alto, etc.), sugiere el tratamiento exacto de la tabla.
             4. Sé conciso, empático y usa formato Markdown (listas y negritas).
+
+            Has de escribir en texto plano, evita responder en texto estructurado, sin códigos MD ni etiquetas HTML ni similares.
             """
         }
 

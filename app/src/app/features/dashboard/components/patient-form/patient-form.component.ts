@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Output } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -344,6 +344,7 @@ export class PatientFormComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly http: HttpClient,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   clearForm(): void {
@@ -507,9 +508,11 @@ export class PatientFormComponent {
         next: (resp) => {
           this.lastResponse = resp;
           this.analyze.emit({ request, response: resp });
+          this.cdr.markForCheck();
         },
         error: (err: Error) => {
           this.submitError = err.message;
+          this.cdr.markForCheck();
         },
       });
   }

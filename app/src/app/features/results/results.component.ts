@@ -23,7 +23,7 @@ import { RiskReportComponent } from '../dashboard/components/risk-report/risk-re
 
       <!-- Right Sidebar: AI Chatbot -->
       <aside class="w-80 bg-white border-l border-gray-200 flex flex-col shadow-sm z-0">
-        <app-chatbot></app-chatbot>
+        <app-chatbot [analysisData]="analysisData"></app-chatbot>
       </aside>
     </div>
   `
