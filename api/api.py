@@ -9,6 +9,7 @@ from passlib.context import CryptContext
 from groq import Groq
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+from typing import List
 import csv
 import os
 
@@ -53,9 +54,13 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class ConsultaInteligente(BaseModel):
-    # El usuario puede escribir "1", "Alto", "Riesgo Intermedio", lo que quiera.
-    nivel_riesgo: str = Field(..., description="El nivel de riesgo (ej: 1, 3, Alto, Bajo)")
+# Modelos de datos
+class Mensaje(BaseModel):
+    role: str       # "user" o "assistant"
+    content: str
+
+class HiloChat(BaseModel):
+    historial: List[Mensaje]
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -167,42 +172,38 @@ def nueva_muestra(datos: dict):
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
     
-@privateRouter.post("/tratamiento")
-def obtener_tratamiento_ia(datos: ConsultaInteligente):
+
+
+@privateRouter.post("/diagnostico")
+def conversar(datos: HiloChat):
     try:
-        # PROMPT DE INGENIERÍA: Le damos el contexto de la enfermedad
-        prompt_sistema = """
-        Eres un Oncólogo Ginecológico Experto.
-        
-        CONTEXTO:
-        Estás tratando un Cáncer de Endometrio / Útero.
-        El usuario te dará un NIVEL DE RIESGO (puede ser un número o una palabra).
-        
-        TU MISIÓN:
-        1. Interpreta ese nivel de riesgo según las guías estándar (ESGO/ESTRO/ESP o FIGO).
-        2. Genera los tratamientos recomendados para ese perfil.
-        3. NO inventes. Basa tu respuesta en el estándar de cuidado actual.
-        4. Estructura la respuesta en: "Cirugía", "Tratamiento Adyuvante" y "Seguimiento".
-        """
+        prompt_medico = {
+            "role": "system",
+            "content": """
+            Eres un Oncólogo Experto en Cáncer de Endometrio y Útero.
+            
+            TUS OBJETIVOS:
+            1. Actuar como un consultor médico riguroso basado en guías (FIGO, ESGO).
+            2. RECORDAR el contexto: Si el usuario ya dijo el riesgo, no lo vuelvas a preguntar.
+            3. Si el usuario te da un nivel de riesgo (1-5 o Bajo/Alto), sugiere el tratamiento estándar.
+            4. Si el usuario hace preguntas de seguimiento (ej: "¿y qué efectos tiene?"), responde sobre el tratamiento que acabas de sugerir.
+            5. Sé conciso, empático y usa formato Markdown.
+            """
+        }
 
-        prompt_usuario = f"El paciente tiene un nivel de riesgo: '{datos.nivel_riesgo}'. ¿Cuál es el protocolo de tratamiento?"
 
-        # Usamos Llama3-70b porque es el que mejor "sabe" medicina
+        mensajes_para_la_ia = [prompt_medico] + [m.dict() for m in datos.historial]
+
         completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": prompt_sistema},
-                {"role": "user", "content": prompt_usuario}
-            ],
-            model="llama-3.1-8b-instant", 
-            temperature=0.1, # Baja temperatura = Respuesta más estándar y menos creativa
-            max_tokens=600
+            messages=mensajes_para_la_ia,
+            model="llama-3.1-8b-instant",
+            temperature=0.2,         
+            max_tokens=800
         )
 
-        return {
-            "input_usuario": datos.nivel_riesgo,
-            "tratamiento_generado": completion.choices[0].message.content,
-            "origen": "Conocimiento Interno IA (llama-3.1-8b-instant)"
-        }
+        respuesta_generada = completion.choices[0].message.content
+        
+        return {"respuesta": respuesta_generada}
 
     except Exception as e:
         return {"error": str(e)}
