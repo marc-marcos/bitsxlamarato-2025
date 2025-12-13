@@ -15,11 +15,9 @@ def predict(inputs):
     load_model()
     
     # Process data
-
     inputs_processed = preprocess_once(inputs)
 
     # Predict
-
     return predict_processed(inputs_processed)
 
 
