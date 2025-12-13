@@ -10,10 +10,10 @@ from groq import Groq
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from typing import List
+import numpy as np
 import csv
 import os
-
-
+import ai
 import models
 from schemas import UserCreate, Token, HiloChat, DatosPaciente
 from database import engine, get_db
@@ -131,13 +131,20 @@ privateRouter = APIRouter(
         
 def procesarDatos(datos: DatosPaciente):
     
-    # Copia todos los valores a un diccionario Python simple
     diccionario = datos.model_dump()
-    
     array = list(diccionario.values())
-    print(array)
+    prediccionClase, probs = ai.predict(array)
+    prediccionClase = int(prediccionClase)
 
-    return {"mensaje": "Array creado", "datos": array}
+
+    return {
+        "prediccionClase": prediccionClase,
+        "prob1": probs[0],
+        "prob2": probs[1],
+        "prob3": probs[2],
+        "prob4": probs[3],
+        "prob5": probs[4]
+    }
 
 @privateRouter.post(
         "/nuevaMuestra",
