@@ -15,7 +15,7 @@ import csv
 import os
 import ai
 import models
-from schemas import UserCreate, Token, HiloChat, DatosPaciente
+from schemas import UserCreate, Token, HiloChat, DatosPaciente, DatosPacienteToTrain
 from database import engine, get_db
 
 load_dotenv()
@@ -153,15 +153,16 @@ def procesarDatos(datos: DatosPaciente):
         tags=["Datos"]
         ) 
 
-def nueva_muestra(datos: dict):
+def nueva_muestra(datos: DatosPacienteToTrain):
     try:
+        diccionario = datos.model_dump()
         fileExists = os.path.isfile(ARCHIVO_CSV)
-        columns = list(datos.keys())
+        columns = list(diccionario.keys())
         with open(ARCHIVO_CSV, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
             if not fileExists:
                 writer.writeheader()
-            writer.writerow(datos)
+            writer.writerow(diccionario)
             return {
                 "status": "ok",
                 "message": "Nueva muestra agregada al dataset"
