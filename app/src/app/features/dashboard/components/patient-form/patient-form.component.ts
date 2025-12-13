@@ -299,11 +299,6 @@ export class PatientFormComponent {
     this.jsonParseError = null;
   }
 
-  onJsonTextChanged(next: string): void {
-    this.jsonInput = next ?? "";
-    this.jsonParseError = null;
-  }
-
   async onJsonFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement | null;
     const file = input?.files?.[0];
@@ -340,15 +335,6 @@ export class PatientFormComponent {
 
     const patch: Partial<PatientBackendPayload> = {};
     for (const { key } of ALL_FIELDS) {
-      if (key === "estudio_genetico") {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          patch[key] = this.coerceNumber((obj as any)[key]);
-        } else {
-          const inferred = this.inferEstudioGeneticoFromLegacyFlags(obj);
-          if (inferred !== null) patch[key] = inferred;
-        }
-        continue;
-      }
       if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
       patch[key] = this.coerceNumber((obj as any)[key]);
     }
@@ -395,25 +381,6 @@ export class PatientFormComponent {
       if (Object.prototype.hasOwnProperty.call(obj, "0")) return this.coerceNumber(obj["0"]);
       const firstKey = Object.keys(obj)[0];
       return firstKey ? this.coerceNumber(obj[firstKey]) : null;
-    }
-    return null;
-  }
-
-  private inferEstudioGeneticoFromLegacyFlags(obj: Record<string, unknown>): number | null {
-    const mapping: ReadonlyArray<{ key: string; code: number }> = [
-      { key: "estudio_genetico_r01", code: 1 },
-      { key: "estudio_genetico_r02", code: 2 },
-      { key: "estudio_genetico_r03", code: 3 },
-      { key: "estudio_genetico_r04", code: 4 },
-      { key: "estudio_genetico_r05", code: 5 },
-      { key: "estudio_genetico_r06", code: 6 },
-    ];
-
-    for (const { key, code } of mapping) {
-      if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
-      const v = this.coerceNumber(obj[key]);
-      if (v === null) continue;
-      if (v === 1 || v === code) return code;
     }
     return null;
   }

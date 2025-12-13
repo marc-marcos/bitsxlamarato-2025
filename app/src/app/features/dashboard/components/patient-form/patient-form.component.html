@@ -22,38 +22,6 @@
     </div>
 
     <form [formGroup]="form" class="grid grid-cols-1 gap-6">
-      <mat-card class="p-4 shadow-sm border border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-          <mat-icon class="text-blue-500">data_object</mat-icon>
-          JSON de entrada (opcional)
-        </h3>
-
-        <div class="grid grid-cols-1 gap-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Pega aquí un JSON</mat-label>
-            <textarea
-              matInput
-              rows="6"
-              [value]="jsonInput"
-              (input)="onJsonTextChanged($any($event.target).value)"
-              placeholder='{"edad": 68, "imc": 39.4, ...}'
-            ></textarea>
-          </mat-form-field>
-
-          <div class="flex flex-wrap items-center gap-3">
-            <button mat-stroked-button type="button" color="primary" class="bg-white" (click)="applyJsonInput()">
-              <mat-icon class="mr-2">file_download</mat-icon>
-              Parsear JSON
-            </button>
-            <button mat-stroked-button type="button" class="bg-white" (click)="clearForm()">
-              <mat-icon class="mr-2">restart_alt</mat-icon>
-              Limpiar
-            </button>
-            <span *ngIf="jsonParseError" class="text-sm text-red-600">{{ jsonParseError }}</span>
-          </div>
-        </div>
-      </mat-card>
-
       <ng-container *ngFor="let group of fieldGroups">
         <mat-card class="p-4 shadow-sm border border-gray-100">
           <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
@@ -69,7 +37,6 @@
                 <ng-container [ngSwitch]="field.kind">
                   <mat-select *ngSwitchCase="'select'" [formControlName]="field.key">
                     <mat-option *ngFor="let opt of (field.options || [])" [value]="opt.value">
-                      <span class="font-mono text-xs text-gray-500 mr-2">{{ opt.value }}</span>
                       {{ opt.label }}
                     </mat-option>
                   </mat-select>
@@ -92,6 +59,11 @@
           </div>
         </mat-card>
       </ng-container>
+
+      <button mat-stroked-button type="button" class="bg-white" (click)="clearForm()">
+        <mat-icon class="mr-2">restart_alt</mat-icon>
+        Limpiar
+      </button>
 
       <div class="flex justify-end">
         <button
