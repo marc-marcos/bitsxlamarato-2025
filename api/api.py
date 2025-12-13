@@ -1,25 +1,47 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.routing import APIRouter
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import csv
+import os
 
 
 import models
 from database import engine, get_db
 
-SECRET_KEY = "killerLatinKingQueQuiereMatarAManin"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", "CLAVE_POR_DEFECTO_INSEGURA")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+
+ARCHIVO_CSV = "dataset.csv"
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:4200",    # Puerto por defecto de Streamlit
+    "http://127.0.0.1:4200",    # Lo mismo pero con IP
+    "*"                         # Permite cualquier origen (útil para desarrollo)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,      # Orígenes permitidos
+    allow_credentials=True,     # Permitir cookies/tokens
+    allow_methods=["*"],        # Permitir todos los verbos (GET, POST, PUT...)
+    allow_headers=["*"],        # Permitir todos los headers (Authorization, etc.)
+)
+
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 class UserCreate(BaseModel):
     username: str
@@ -62,7 +84,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-@app.post("/register")
+@app.post(
+        "/register", 
+        summary="Registrar un nuevo usuario",
+        description="Crea un nuevo usuario con nombre de usuario y contraseña.",
+        tags=["Autenticación"]
+        )
+
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
@@ -74,7 +102,14 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Usuario creado correctamente"}
 
-@app.post("/login", response_model=Token)
+@app.post(
+        "/login", 
+        response_model=Token,
+        summary="Iniciar sesión y obtener un token de acceso",
+        description="Inicia sesión con nombre de usuario y contraseña para obtener un token JWT.",
+        tags=["Autenticación"]
+        )
+
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -91,13 +126,39 @@ privateRouter = APIRouter(
     dependencies=[Depends(get_current_user)] 
 )
 
-@privateRouter.get("/users/me")
-def read_users_me(current_user: models.User = Depends(get_current_user)):
-    return {"username": current_user.username, "id": current_user.id, "mensaje": "Estás dentro de una ruta protegida"}
-
-@privateRouter.post("/procesarDatos")
+@privateRouter.post(
+        "/procesarDatos",
+        summary="Procesar datos JSON",
+        description="Procesa los datos JSON enviados en la solicitud.",
+        tags=["Datos"])
+        
 def procesar_datos_json(datos: dict):
 
     print(f"Datos procesados: {datos}")
     
     return {"status": "ok", "data": datos}
+
+@privateRouter.post(
+        "/nuevaMuestra",
+        summary="Agregar nueva muestra al dataset",
+        description="Agrega una nueva muestra al archivo CSV del dataset.",
+        tags=["Datos"]
+        ) 
+
+def nueva_muestra(datos: dict):
+    try:
+        fileExists = os.path.isfile(ARCHIVO_CSV)
+        columns = list(datos.keys())
+        with open(ARCHIVO_CSV, mode='a', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=columns)
+            if not fileExists:
+                writer.writeheader()
+            writer.writerow(datos)
+            return {
+                "status": "ok",
+                "message": "Nueva muestra agregada al dataset"
+            }
+    except Exception as e:
+        return {"status": "error", "mensaje": str(e)}
+    
+app.include_router(privateRouter)   

@@ -2,31 +2,5 @@
   "reporte_id": "REP-2025-001",
   "fecha": "2025-12-13",
   "tienda": "Sucursal Centro",
-  "moneda": "EUR",
-  "items": [
-    {
-      "producto": "Teclado Mecánico",
-      "precio_unitario": 120.50,
-      "cantidad": 2,
-      "categoria": "Periféricos"
-    },
-    {
-      "producto": "Monitor 24 pulgadas",
-      "precio_unitario": 199.99,
-      "cantidad": 1,
-      "categoria": "Pantallas"
-    },
-    {
-      "producto": "Cable HDMI 2m",
-      "precio_unitario": 15.00,
-      "cantidad": 5,
-      "categoria": "Accesorios"
-    },
-    {
-      "producto": "Ratón Inalámbrico",
-      "precio_unitario": 35.00,
-      "cantidad": 3,
-      "categoria": "Periféricos"
-    }
-  ]
+  "moneda": "EUR"
 }
