@@ -1,0 +1,38 @@
+<div class="flex h-screen flex-col bg-gray-50">
+  <!-- Header -->
+  <mat-toolbar color="primary" class="!bg-blue-600 !text-white shadow-md z-10 relative">
+    <span class="font-bold text-xl tracking-tight">{{ appName }}</span>
+    <span class="flex-1"></span>
+    <button mat-icon-button (click)="logout()" class="!text-white hover:bg-blue-700 rounded-full transition-colors">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- Main Content -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Center: Patient Form -->
+    <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
+      <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">Análisis de Riesgo</h1>
+          <p class="text-gray-600">Complete los datos del paciente para generar un reporte de riesgo cardiovascular.</p>
+        </div>
+        
+        <app-patient-form (analyze)="onAnalyze()"></app-patient-form>
+      </div>
+    </main>
+
+    <!-- Right Sidebar: AI Chatbot -->
+    <aside class="w-80 bg-white border-l border-gray-200 flex flex-col shadow-sm z-0">
+      <app-chatbot></app-chatbot>
+    </aside>
+  </div>
+
+  <!-- Risk Report Modal Overlay -->
+  <div *ngIf="showReport" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden animate-scale-in">
+      <app-risk-report (close)="closeReport()"></app-risk-report>
+    </div>
+  </div>
+</div>
+

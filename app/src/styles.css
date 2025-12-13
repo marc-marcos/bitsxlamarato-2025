@@ -1,0 +1,61 @@
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f5f6fa;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* styles.scss */
+
+/* 1. Arregla la línea/barra extraña en el label (Conflicto de bordes Tailwind) */
+.mdc-notched-outline__leading,
+.mdc-notched-outline__notch,
+.mdc-notched-outline__trailing {
+    /* Tailwind a veces fuerza un borde sólido heredado, aquí lo reseteamos */
+    border-right-style: none; 
+    border-left-style: none;
+    border-top-style: none;
+    border-bottom-style: none;
+}
+
+/* 2. Asegura que Material dibuje sus bordes correctamente */
+/* (Solo permitimos los bordes que Material define explícitamente en sus clases) */
+.mdc-notched-outline__leading {
+    border-left-style: solid;
+    border-top-style: solid;
+    border-bottom-style: solid;
+}
+.mdc-notched-outline__notch {
+    border-top-style: solid; /* Este es el que se vuelve transparente cuando el label sube */
+    border-bottom-style: solid;
+}
+.mdc-notched-outline__trailing {
+    border-right-style: solid;
+    border-top-style: solid;
+    border-bottom-style: solid;
+}
+
+/* 3. (Opcional pero recomendado) Arregla iconos desalineados */
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-suffix {
+    box-sizing: content-box; /* Tailwind pone border-box y achica los iconos */
+}
