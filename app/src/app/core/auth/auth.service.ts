@@ -127,6 +127,8 @@ export class AuthService {
     if (err instanceof HttpErrorResponse) {
       const maybeDetail = (err.error && typeof err.error === "object" ? (err.error as any).detail : null) as unknown;
       if (typeof maybeDetail === "string" && maybeDetail.trim()) return new Error(maybeDetail.trim());
+      
+      if (err.status === 401) return new Error("Usuario o contraseña incorrectos.");
       if (err.status) return new Error(`Error del backend (${err.status}).`);
       return new Error("No se pudo conectar con el backend.");
     }

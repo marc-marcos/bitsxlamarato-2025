@@ -1,11 +1,13 @@
 <main class="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-indigo-500 to-purple-600">
-  <mat-card class="w-full max-w-md shadow-2xl">
+  <mat-card class="w-full max-w-md shadow-2xl overflow-hidden">
     <mat-card-header class="mb-6">
-      <mat-card-title class="text-2xl font-bold">{{ appName }}</mat-card-title>
+      <div class="w-full">
+        <mat-card-title class="text-2xl font-bold text-gray-800">{{ appName }}</mat-card-title>
+      </div>
     </mat-card-header>
 
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <mat-card-content class="p-6 bg-white">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Usuario</mat-label>
           <input matInput type="text" formControlName="username" autocomplete="username" required />
@@ -27,19 +29,21 @@
           </mat-error>
         </mat-form-field>
 
-        <div *ngIf="error" class="p-3 rounded bg-red-50 border-l-4 border-red-500">
-          <p class="text-sm text-red-800 m-0">{{ error }}</p>
+        <div *ngIf="error" class="p-3 rounded bg-red-50 border-l-4 border-red-500 animate-fade-in">
+          <p class="text-sm text-red-800 m-0 font-medium">{{ error }}</p>
         </div>
 
-        <button mat-raised-button color="primary" class="w-full h-12 mt-2" type="submit" [disabled]="loading">
-          <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"
-            class="inline-block align-middle mr-2"></mat-progress-spinner>
-          <span>{{ loading ? "Entrando…" : "Iniciar Sesión" }}</span>
+        <button mat-raised-button color="primary" class="w-full !h-12 !text-lg !rounded-lg mt-2 shadow-md transition-all" 
+          type="submit" [disabled]="loading">
+          <div class="flex items-center justify-center gap-2">
+            <mat-progress-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-progress-spinner>
+            <span>{{ loading ? "Iniciando sesión..." : "Iniciar Sesión" }}</span>
+          </div>
         </button>
 
-        <p class="text-center mt-5 text-sm text-gray-600">
+        <p class="text-center mt-4 text-sm text-gray-600">
           ¿No tienes cuenta? <a routerLink="/register"
-            class="text-blue-600 font-semibold hover:underline ml-1">Regístrate aquí</a>
+            class="text-blue-600 font-semibold hover:underline ml-1 transition-colors">Regístrate aquí</a>
         </p>
       </form>
     </mat-card-content>

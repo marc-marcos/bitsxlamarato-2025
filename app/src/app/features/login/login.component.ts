@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -44,6 +44,7 @@ export class LoginComponent {
     private readonly fb: FormBuilder,
     private readonly auth: AuthService,
     private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   submit(): void {
@@ -60,9 +61,13 @@ export class LoginComponent {
       .login(username, password, false)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => this.router.navigateByUrl("/analyze"),
+        next: () => {
+          this.router.navigateByUrl("/analyze");
+          this.cdr.markForCheck();
+        },
         error: (err: unknown) => {
           this.error = err instanceof Error ? err.message : String(err);
+          this.cdr.markForCheck();
         },
       });
   }

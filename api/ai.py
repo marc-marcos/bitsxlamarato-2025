@@ -5,18 +5,19 @@ MODEL_PATH = "../lr_gs.joblib"
 SCALER_PATH = "../scaler.joblib"
 
 model = None
+scaler = None
 
 def add_new_data():
     pass
 
 def predict(inputs):
     global model
+    load_model()
+    
     # Process data
-
     inputs_processed = preprocess_once(inputs)
 
     # Predict
-
     return predict_processed(inputs_processed)
 
 
@@ -55,7 +56,7 @@ def manual_one_hot_encoding(input_):
     # indices 0-10 + OHE section + indices 12-31
     final_row = input_[:11] + ohe_section + input_[12:]
     
-    return final_row
+    return [final_row]
 
 def preprocess_once(input_):
     global scaler

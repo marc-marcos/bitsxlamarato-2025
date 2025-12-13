@@ -130,13 +130,11 @@ privateRouter = APIRouter(
         tags=["Datos"])
         
 def procesarDatos(datos: DatosPaciente):
-    
     diccionario = datos.model_dump()
     array = list(diccionario.values())  
     prediccionClase, probs = ai.predict(array)
     prediccionClase = int(prediccionClase)
-
-
+    probs = probs[0].tolist()
     return {
         "prediccionClase": prediccionClase,
         "prob1": probs[0],

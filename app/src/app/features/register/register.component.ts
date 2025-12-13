@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -47,6 +47,7 @@ export class RegisterComponent {
     private readonly fb: FormBuilder,
     private readonly auth: AuthService,
     private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   passwordsMatch(): boolean {
@@ -83,11 +84,13 @@ export class RegisterComponent {
           this.success = true;
           this.error = "";
           setTimeout(() => this.router.navigateByUrl("/login"), 2000);
+          this.cdr.markForCheck();
         },
         error: (err: unknown) => {
           console.error("Error en registro:", err);
           this.error = err instanceof Error ? err.message : String(err);
           this.success = false;
+          this.cdr.markForCheck();
         },
       });
   }
