@@ -13,7 +13,7 @@ import { environment } from "../../../environments/environment";
 import { AuthService } from "../../core/auth/auth.service";
 
 @Component({
-  selector: "app-login",
+  selector: "app-register",
   standalone: true,
   imports: [
     CommonModule,
@@ -26,18 +26,21 @@ import { AuthService } from "../../core/auth/auth.service";
     MatIconModule,
     MatProgressSpinnerModule,
   ],
-  templateUrl: "./login.component.html",
-  styleUrl: "./login.component.css",
+  templateUrl: "./register.component.html",
+  styleUrl: "./register.component.css",
 })
-export class LoginComponent {
+export class RegisterComponent {
   readonly appName = environment.appName;
   hidePassword = true;
+  hideConfirmPassword = true;
   loading = false;
   error = "";
+  success = false;
 
   readonly form = this.fb.nonNullable.group({
-    username: ["", [Validators.required]],
-    password: ["", [Validators.required]],
+    username: ["", [Validators.required, Validators.minLength(3)]],
+    password: ["", [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ["", [Validators.required]],
   });
 
   constructor(
@@ -46,23 +49,45 @@ export class LoginComponent {
     private readonly router: Router,
   ) {}
 
+  passwordsMatch(): boolean {
+    const password = this.form.get("password")?.value;
+    const confirmPassword = this.form.get("confirmPassword")?.value;
+    return password === confirmPassword;
+  }
+
   submit(): void {
     this.error = "";
+    this.success = false;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+
+    if (!this.passwordsMatch()) {
+      this.error = "Las contraseñas no coinciden";
       return;
     }
 
     const { username, password } = this.form.getRawValue();
     this.loading = true;
 
+    console.log("Enviando registro con:", { username, password });
+
     this.auth
-      .login(username, password, false)
+      .register(username, password, false)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => this.router.navigateByUrl("/dashboard"),
+        next: () => {
+          console.log("Registro exitoso");
+          this.success = true;
+          this.error = "";
+          setTimeout(() => this.router.navigateByUrl("/login"), 2000);
+        },
         error: (err: unknown) => {
+          console.error("Error en registro:", err);
           this.error = err instanceof Error ? err.message : String(err);
+          this.success = false;
         },
       });
   }

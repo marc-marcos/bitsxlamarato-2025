@@ -1,14 +1,13 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, catchError, from, map, tap, throwError, timeout } from "rxjs";
+import { BehaviorSubject, Observable, catchError, map, tap, throwError, timeout } from "rxjs";
 import { environment } from "../../../environments/environment";
-import { AuthState, User } from "./auth.models";
-import { demoLogin } from "./mock-backend";
+import { AuthState, Token, User, UserCreate } from "./auth.models";
 
-type LoginResponse = {
-  access_token?: unknown;
-  token?: unknown;
-  user?: unknown;
+type LoginFormData = {
+  username: string;
+  password: string;
+  grant_type?: string;
 };
 
 const STORAGE_KEY = "checktherisk.auth";
@@ -18,19 +17,12 @@ function asNonEmptyString(value: unknown): string | null {
   return txt ? txt : null;
 }
 
-function asUser(value: unknown, fallbackEmail: string, backend: "demo" | "api"): User {
-  if (value && typeof value === "object") {
-    const anyUser = value as Partial<User>;
-    if (typeof anyUser.email === "string" && anyUser.email.trim()) {
-      return {
-        name: typeof anyUser.name === "string" && anyUser.name.trim() ? anyUser.name.trim() : fallbackEmail.split("@", 1)[0],
-        email: anyUser.email.trim(),
-        role: typeof anyUser.role === "string" ? anyUser.role : undefined,
-        backend,
-      };
-    }
-  }
-  return { name: fallbackEmail.split("@", 1)[0], email: fallbackEmail, backend };
+function asUser(username: string, backend: "demo" | "api"): User {
+  return {
+    name: username.split("@", 1)[0],
+    username,
+    backend,
+  };
 }
 
 @Injectable({ providedIn: "root" })
@@ -65,30 +57,36 @@ export class AuthService {
     return Boolean(this.state.token);
   }
 
-  login(email: string, password: string, demoMode: boolean): Observable<AuthState> {
-    if (demoMode) {
-      return from(demoLogin(email, password)).pipe(
-        map(({ token, user }) => ({ token, user, demoMode })),
-        tap((nextState) => this.setState(nextState)),
-      );
-    }
+  login(username: string, password: string, demoMode: boolean): Observable<AuthState> {
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
 
     return this.http
-      .post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, { email, password })
+      .post<Token>(`${this.apiBaseUrl}/login`, formData)
       .pipe(
         timeout({ first: environment.requestTimeoutMs }),
         map((resp) => {
-          const token = asNonEmptyString(resp.access_token) ?? asNonEmptyString(resp.token);
+          const token = asNonEmptyString(resp.access_token);
           if (!token) {
             throw new Error("Login correcto pero sin token en la respuesta.");
           }
           return {
             token,
-            user: asUser(resp.user, email, "api"),
-            demoMode,
+            user: asUser(username, "api"),
+            demoMode: false,
           };
         }),
         tap((nextState) => this.setState(nextState)),
+        catchError((err) => throwError(() => this.humanizeError(err))),
+      );
+  }
+
+  register(username: string, password: string, demoMode: boolean = false): Observable<unknown> {
+    return this.http
+      .post<unknown>(`${this.apiBaseUrl}/register`, { username, password })
+      .pipe(
+        timeout({ first: environment.requestTimeoutMs }),
         catchError((err) => throwError(() => this.humanizeError(err))),
       );
   }
