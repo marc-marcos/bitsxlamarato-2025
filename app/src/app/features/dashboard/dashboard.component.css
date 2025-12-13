@@ -1,0 +1,50 @@
+.card-header {
+  align-items: center;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta {
+  margin: 8px 0 16px;
+}
+
+.column-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.subtitle {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.values-list {
+  max-height: 520px;
+  overflow: auto;
+}
+
+.idx {
+  display: inline-block;
+  width: 30px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+}
+
+.type {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+}
+
+.empty {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(2, 132, 199, 0.08);
+  color: rgba(0, 0, 0, 0.72);
+}
+

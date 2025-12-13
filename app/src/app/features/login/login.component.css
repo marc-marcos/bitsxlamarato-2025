@@ -1,0 +1,27 @@
+.login-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.login-card {
+  width: min(420px, 100%);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: #b00020;
+  font-size: 13px;
+}
+
+button mat-progress-spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+

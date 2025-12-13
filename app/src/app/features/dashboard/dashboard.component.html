@@ -1,0 +1,54 @@
+<mat-toolbar color="primary">
+  <span>{{ appName }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button aria-label="Cerrar sesión" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<main class="container">
+  <mat-card>
+    <mat-card-header class="card-header">
+      <div class="header-text">
+        <mat-card-title>Valores importados</mat-card-title>
+        <mat-card-subtitle>Vista previa de la columna detectada</mat-card-subtitle>
+      </div>
+
+      <span class="spacer"></span>
+
+      <button mat-raised-button color="primary" (click)="openImportDialog()">
+        <mat-icon>upload_file</mat-icon>
+        Importar CSV/JSON
+      </button>
+
+      <input #fileInput type="file" accept=".csv,.json" (change)="onFileSelected($event)" hidden />
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="meta">
+        <div class="column-name">{{ importedColumnName }}</div>
+        <div class="subtitle">{{ importedSubtitle }}</div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <mat-list *ngIf="importedValues.length; else emptyState" class="values-list">
+        <mat-list-item *ngFor="let item of importedValues; index as i">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <div matListItemTitle>
+            <span class="idx">{{ i + 1 }}.</span>
+            {{ item.text }}
+          </div>
+          <div matListItemLine class="type">{{ item.type }}</div>
+        </mat-list-item>
+      </mat-list>
+
+      <ng-template #emptyState>
+        <div class="empty">
+          Aún no hay datos importados.
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</main>
+
