@@ -2,6 +2,8 @@ import joblib
 import numpy as np
 
 MODEL_PATH = "model.joblib"
+SCALER_PATH = "scaler.joblib"
+
 model = None
 
 def add_new_data():
@@ -9,22 +11,41 @@ def add_new_data():
 
 def predict(inputs):
     global model
+    # Process data
 
-    probabilities = model.predict_proba(dummy_input)
-    pred_class = model.predict(dummy_input)
+    inputs_processed = preprocess_once(inputs)
+
+    # Predict
+
+    return predict_processed(inputs_processed)
+
+
+def predict_processed(input):
+    probabilities = model.predict_proba(input)
+    pred_class = model.predict(input)
 
     return (pred_class, probabilities)
 
 def preprocess_once(input_):
-    pass
+    global scaler
+
+    # Manual one hot encoding
+
+    # Scaling
+    data_scaled = scaler.transform(input_)
+
+    return data_scaled
+
 
 def retrain():
     pass
 
 def load_model():
     global model
+    global scaler
 
     model = joblib.load(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
 
 if __name__ == "__main__":
     # Load the model from the file
