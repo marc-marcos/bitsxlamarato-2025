@@ -10,12 +10,12 @@ from groq import Groq
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from typing import List
+import numpy as np
 import csv
 import os
-
-
+import ai
 import models
-from schemas import UserCreate, Token, HiloChat, DatosPaciente
+from schemas import UserCreate, Token, HiloChat, DatosPaciente, DatosPacienteToTrain
 from database import engine, get_db
 
 load_dotenv()
@@ -131,13 +131,20 @@ privateRouter = APIRouter(
         
 def procesarDatos(datos: DatosPaciente):
     
-    # Copia todos los valores a un diccionario Python simple
     diccionario = datos.model_dump()
-    
-    array = list(diccionario.values())
-    print(array)
+    array = list(diccionario.values())  
+    prediccionClase, probs = ai.predict(array)
+    prediccionClase = int(prediccionClase)
 
-    return {"mensaje": "Array creado", "datos": array}
+
+    return {
+        "prediccionClase": prediccionClase,
+        "prob1": probs[0],
+        "prob2": probs[1],
+        "prob3": probs[2],
+        "prob4": probs[3],
+        "prob5": probs[4]
+    }
 
 @privateRouter.post(
         "/nuevaMuestra",
@@ -146,15 +153,16 @@ def procesarDatos(datos: DatosPaciente):
         tags=["Datos"]
         ) 
 
-def nueva_muestra(datos: dict):
+def nueva_muestra(datos: DatosPacienteToTrain):
     try:
+        diccionario = datos.model_dump()
         fileExists = os.path.isfile(ARCHIVO_CSV)
-        columns = list(datos.keys())
+        columns = list(diccionario.keys())
         with open(ARCHIVO_CSV, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=columns)
             if not fileExists:
                 writer.writeheader()
-            writer.writerow(datos)
+            writer.writerow(diccionario)
             return {
                 "status": "ok",
                 "message": "Nueva muestra agregada al dataset"
@@ -164,30 +172,60 @@ def nueva_muestra(datos: dict):
     
 
 
-@privateRouter.post("/diagnostico")
+@privateRouter.post("/chatBot")
 def conversar(datos: HiloChat):
     try:
+        TABLA_VII_CONTEXTO = """
+        REFERENCIA CLÍNICA OBLIGATORIA (Tabla VII - Tratamiento adyuvante):
+        
+        1. RIESGO BAJO:
+           - Perfil: Estadio IA endometrioide (bajo grado, ILV neg/focal) O Molecular (POLEmut I-II, MMRd/NSMP IA bajo grado).
+           - TRATAMIENTO: No tratamiento adyuvante.
+        
+        2. RIESGO INTERMEDIO:
+           - Perfil: Estadio IB endometrioide (bajo grado), IA alto grado, o IA no endometrioide sin invasión.
+           - TRATAMIENTO: Braquiterapia (BT).
+           - Nota: Se puede omitir BT en pacientes < 60 años.
+        
+        3. RIESGO INTERMEDIO-ALTO:
+           - Perfil: Estadio I con ILV extensa, IB alto grado, o Estadio II.
+           - TRATAMIENTO: 
+             * Braquiterapia (BT) como base.
+             * RTE +/- BT: Si hay ILV extensa y/o estadio II.
+             * Considerar QT adyuvante: Si hay ILV extensa y/o alto grado.
+        
+        4. RIESGO ALTO:
+           - Perfil: Estadio III-IVA sin residual, I-IVA no endometrioide (seroso, claras...) con invasión miometrial.
+           - TRATAMIENTO: RTE (+/- boost BT) + QT (concurrente y adyuvante o QT-RT secuenciales).
+        
+        5. AVANZADOS (Estadio IVB o III-IVA con residual):
+           - TRATAMIENTO: QT y valorar RTE +/- BT. Hormonoterapia (HT). Si progresión valorar inmunoterapia. RTE paliativa.
+        
+        GLOSARIO: ILV=Invasión Linfovascular, RTE=Radioterapia Externa, BT=Braquiterapia, QT=Quimioterapia.
+        """
+
         prompt_medico = {
             "role": "system",
-            "content": """
+            "content": f"""
             Eres un Oncólogo Experto en Cáncer de Endometrio y Útero.
             
+            TU FUENTE DE VERDAD:
+            {TABLA_VII_CONTEXTO}
+            
             TUS OBJETIVOS:
-            1. Actuar como un consultor médico riguroso basado en guías (FIGO, ESGO).
-            2. RECORDAR el contexto: Si el usuario ya dijo el riesgo, no lo vuelvas a preguntar.
-            3. Si el usuario te da un nivel de riesgo (1-5 o Bajo/Alto), sugiere el tratamiento estándar.
-            4. Si el usuario hace preguntas de seguimiento (ej: "¿y qué efectos tiene?"), responde sobre el tratamiento que acabas de sugerir.
-            5. Sé conciso, empático y usa formato Markdown.
+            1. Actuar como un consultor médico riguroso. BASA TUS RESPUESTAS EXCLUSIVAMENTE EN LA "REFERENCIA CLÍNICA OBLIGATORIA" PROVISTA ARRIBA.
+            2. Distingue si el usuario aporta "Clasificación Molecular" (POLEmut, MMRd, p53abn) o si es "Desconocida". Si no lo dice, asume desconocida o pregunta.
+            3. Si el usuario te da un nivel de riesgo (Bajo, Intermedio, Alto, etc.), sugiere el tratamiento exacto de la tabla.
+            4. Sé conciso, empático y usa formato Markdown (listas y negritas).
             """
         }
-
 
         mensajes_para_la_ia = [prompt_medico] + [m.dict() for m in datos.historial]
 
         completion = client.chat.completions.create(
             messages=mensajes_para_la_ia,
             model="llama-3.1-8b-instant",
-            temperature=0.2,         
+            temperature=0.2,
             max_tokens=800
         )
 
