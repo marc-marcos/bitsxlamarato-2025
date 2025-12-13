@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from groq import Groq
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import csv
 import os
@@ -19,8 +20,9 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "CLAVE_POR_DEFECTO_INSEGURA")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
-
 ARCHIVO_CSV = "dataset.csv"
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -50,6 +52,10 @@ class UserCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class ConsultaInteligente(BaseModel):
+    # El usuario puede escribir "1", "Alto", "Riesgo Intermedio", lo que quiera.
+    nivel_riesgo: str = Field(..., description="El nivel de riesgo (ej: 1, 3, Alto, Bajo)")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -161,4 +167,49 @@ def nueva_muestra(datos: dict):
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
     
+@privateRouter.post("/tratamiento")
+def obtener_tratamiento_ia(datos: ConsultaInteligente):
+    try:
+        # PROMPT DE INGENIERÍA: Le damos el contexto de la enfermedad
+        prompt_sistema = """
+        Eres un Oncólogo Ginecológico Experto.
+        
+        CONTEXTO:
+        Estás tratando un Cáncer de Endometrio / Útero.
+        El usuario te dará un NIVEL DE RIESGO (puede ser un número o una palabra).
+        
+        TU MISIÓN:
+        1. Interpreta ese nivel de riesgo según las guías estándar (ESGO/ESTRO/ESP o FIGO).
+        2. Genera los tratamientos recomendados para ese perfil.
+        3. NO inventes. Basa tu respuesta en el estándar de cuidado actual.
+        4. Estructura la respuesta en: "Cirugía", "Tratamiento Adyuvante" y "Seguimiento".
+        """
+
+        prompt_usuario = f"El paciente tiene un nivel de riesgo: '{datos.nivel_riesgo}'. ¿Cuál es el protocolo de tratamiento?"
+
+        # Usamos Llama3-70b porque es el que mejor "sabe" medicina
+        completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": prompt_sistema},
+                {"role": "user", "content": prompt_usuario}
+            ],
+            model="llama-3.1-8b-instant", 
+            temperature=0.1, # Baja temperatura = Respuesta más estándar y menos creativa
+            max_tokens=600
+        )
+
+        return {
+            "input_usuario": datos.nivel_riesgo,
+            "tratamiento_generado": completion.choices[0].message.content,
+            "origen": "Conocimiento Interno IA (llama-3.1-8b-instant)"
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+
+
+
+
 app.include_router(privateRouter)   
