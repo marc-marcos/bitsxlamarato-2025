@@ -15,6 +15,7 @@ import os
 
 
 import models
+from schemas import UserCreate, Token, HiloChat, DatosPaciente
 from database import engine, get_db
 
 load_dotenv()
@@ -46,21 +47,6 @@ app.add_middleware(
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-class UserCreate(BaseModel):
-    username: str
-    password: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-# Modelos de datos
-class Mensaje(BaseModel):
-    role: str       # "user" o "assistant"
-    content: str
-
-class HiloChat(BaseModel):
-    historial: List[Mensaje]
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -143,11 +129,15 @@ privateRouter = APIRouter(
         description="Procesa los datos JSON enviados en la solicitud.",
         tags=["Datos"])
         
-def procesar_datos_json(datos: dict):
-
-    print(f"Datos procesados: {datos}")
+def procesarDatos(datos: DatosPaciente):
     
-    return {"status": "ok", "data": datos}
+    # Copia todos los valores a un diccionario Python simple
+    diccionario = datos.model_dump()
+    
+    array = list(diccionario.values())
+    print(array)
+
+    return {"mensaje": "Array creado", "datos": array}
 
 @privateRouter.post(
         "/nuevaMuestra",
