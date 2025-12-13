@@ -8,3 +8,5 @@ python-multipart    # Necesario para el formulario de login de FastAPI
 argon2-cffi
 python-dotenv
 groq
+joblib
+scikit-learn
