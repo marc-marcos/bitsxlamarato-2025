@@ -31,17 +31,17 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 origins = [
-    "http://localhost:4200",    # Puerto por defecto de Streamlit
-    "http://127.0.0.1:4200",    # Lo mismo pero con IP
-    "*"                         # Permite cualquier origen (útil para desarrollo)
+    "http://localhost:4200",    
+    "http://127.0.0.1:4200",    
+    "*"                         
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,      # Orígenes permitidos
-    allow_credentials=True,     # Permitir cookies/tokens
-    allow_methods=["*"],        # Permitir todos los verbos (GET, POST, PUT...)
-    allow_headers=["*"],        # Permitir todos los headers (Authorization, etc.)
+    allow_origins=origins,      
+    allow_credentials=True,     
+    allow_methods=["*"],        
+    allow_headers=["*"],        
 )
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
@@ -127,7 +127,8 @@ privateRouter = APIRouter(
         "/procesarDatos",
         summary="Procesar datos JSON",
         description="Procesa los datos JSON enviados en la solicitud.",
-        tags=["Datos"])
+        tags=["IA"]
+        )
         
 def procesarDatos(datos: DatosPaciente):
     diccionario = datos.model_dump()
@@ -148,29 +149,38 @@ def procesarDatos(datos: DatosPaciente):
         "/nuevaMuestra",
         summary="Agregar nueva muestra al dataset",
         description="Agrega una nueva muestra al archivo CSV del dataset.",
-        tags=["Datos"]
+        tags=["IA"]
         ) 
 
-def nueva_muestra(datos: DatosPacienteToTrain):
-    try:
-        diccionario = datos.model_dump()
-        fileExists = os.path.isfile(ARCHIVO_CSV)
-        columns = list(diccionario.keys())
-        with open(ARCHIVO_CSV, mode='a', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames=columns)
-            if not fileExists:
-                writer.writeheader()
-            writer.writerow(diccionario)
-            return {
-                "status": "ok",
-                "message": "Nueva muestra agregada al dataset"
-            }
-    except Exception as e:
-        return {"status": "error", "mensaje": str(e)}
+def nuevaMuestra(datos: DatosPacienteToTrain):
     
-
-
-@privateRouter.post("/chatBot")
+    diccionario = datos.model_dump()
+    array = list(diccionario.values())
+    status = ai.add_sample(array)
+    if status:
+        return {"mensaje": "Nueva muestra agregada"}
+    else:
+        return {"mensaje": "Error al agregar la nueva muestra"}
+    
+@privateRouter.post(
+        "/reEntrenar",
+        summary="Reentrenar el modelo",
+        description="Reentrena el modelo de IA con los datos actuales del dataset.",
+        tags=["IA"]
+        )
+def reEntrenar():
+    status = ai.retrain()
+    if status:
+        return {"mensaje": "Modelo reentrenado correctamente"}
+    else:
+        return {"mensaje": "Error al reentrenar el modelo"}
+    
+@privateRouter.post(
+        "/chatBot",
+        summary="Chatbot médico para cáncer de endometrio",
+        description="Interactúa con un chatbot especializado en cáncer de endometrio basado en una referencia clínica específica.",
+        tags=["Chatbot"]
+        )
 def conversar(datos: HiloChat):
     try:
         TABLA_VII_CONTEXTO = """
