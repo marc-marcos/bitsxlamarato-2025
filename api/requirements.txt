@@ -1,10 +1,10 @@
 fastapi
 uvicorn[standard]
 python-dotenv
-sqlalchemy          # ORM para la Base de Datos
-passlib[bcrypt]     # Para hashear contraseñas
-python-jose[cryptography]  # Para generar y leer tokens JWT
-python-multipart    # Necesario para el formulario de login de FastAPI
+sqlalchemy          
+passlib[bcrypt]     
+python-jose[cryptography]  
+python-multipart    
 argon2-cffi
 python-dotenv
 groq

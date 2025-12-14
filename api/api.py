@@ -156,7 +156,6 @@ def nuevaMuestra(datos: DatosPacienteToTrain):
     
     diccionario = datos.model_dump()
     array = list(diccionario.values())
-    print(array)
     status = ai.add_sample(array)
     if status:
         return {"mensaje": "Nueva muestra agregada"}
