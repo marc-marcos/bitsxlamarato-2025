@@ -58,9 +58,9 @@ class DatosPaciente(BaseModel):
     libre_enferm: float
     causa_muerte: float
 
-    fecha_de_recidi: date
-    fecha_qx: date
-    visita_control: date
+    fecha_de_recidi: str
+    fecha_qx: str
+    visita_control: str
 
 class DatosPacienteToTrain(BaseModel):
     edad: float
@@ -103,8 +103,8 @@ class DatosPacienteToTrain(BaseModel):
     libre_enferm: float
     causa_muerte: float
 
-    fecha_de_recidi: date
-    fecha_qx: date
-    visita_control: date
-
     grupo_de_riesgo_definitivo: float
+
+    fecha_de_recidi: str
+    fecha_qx: str
+    visita_control: str
