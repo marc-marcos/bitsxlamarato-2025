@@ -11,3 +11,4 @@ groq
 joblib
 scikit-learn
 numpy
+pandas
