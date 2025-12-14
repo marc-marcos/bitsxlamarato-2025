@@ -83,9 +83,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
 @app.post(
         "/register", 
-        summary="Registrar un nuevo usuario",
-        description="Crea un nuevo usuario con nombre de usuario y contraseña.",
-        tags=["Autenticación"]
+        summary="Registrar un nou usuari",
+        description="Crea un nou usuari amb nom d'usuari i contrasenya.",
+        tags=["Autenticació"]
         )
 
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -102,9 +102,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 @app.post(
         "/login", 
         response_model=Token,
-        summary="Iniciar sesión y obtener un token de acceso",
-        description="Inicia sesión con nombre de usuario y contraseña para obtener un token JWT.",
-        tags=["Autenticación"]
+        summary="Iniciar sessió i obtenir un token d'accés",
+        description="Inicia sessió amb nom d'usuari i contrasenya per obtenir un token JWT.",
+        tags=["Autenticació"]
         )
 
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -125,8 +125,8 @@ privateRouter = APIRouter(
 
 @privateRouter.post(
         "/procesarDatos",
-        summary="Procesar datos JSON",
-        description="Procesa los datos JSON enviados en la solicitud.",
+        summary="Processar dades JSON",
+        description="Processa les dades JSON enviades en la sol·licitud.",
         tags=["IA"]
         )
         
@@ -152,8 +152,8 @@ def procesarDatos(datos: DatosPaciente):
 
 @privateRouter.post(
         "/nuevaMuestra",
-        summary="Agregar nueva muestra al dataset",
-        description="Agrega una nueva muestra al archivo CSV del dataset.",
+        summary="Afegir una nova mostra al dataset",
+        description="Afegeix una nova mostra al fitxer CSV del dataset.",
         tags=["IA"]
         ) 
 
@@ -174,8 +174,8 @@ def nuevaMuestra(datos: DatosPacienteToTrain):
     
 @privateRouter.post(
         "/reEntrenar",
-        summary="Reentrenar el modelo",
-        description="Reentrena el modelo de IA con los datos actuales del dataset.",
+        summary="Reentrenar el model",
+        description="Reentrena el model d'IA amb les dades actuals del dataset.",
         tags=["IA"]
         )
 def reEntrenar():
@@ -187,9 +187,9 @@ def reEntrenar():
     
 @privateRouter.post(
         "/chatBot",
-        summary="Chatbot médico para cáncer de endometrio",
-        description="Interactúa con un chatbot especializado en cáncer de endometrio basado en una referencia clínica específica.",
-        tags=["Chatbot"]
+        summary="Xatbot mèdic per a càncer d'endometri",
+        description="Interactua amb un xatbot especialitzat en càncer d'endometri basat en una referència clínica específica.",
+        tags=["Xatbot"]
         )
 def conversar(datos: HiloChat):
     try:
