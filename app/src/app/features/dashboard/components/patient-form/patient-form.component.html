@@ -66,6 +66,13 @@
                     [formControlName]="field.key"
                     [placeholder]="field.placeholder || ''"
                   />
+
+                  <input
+                    *ngSwitchCase="'date'"
+                    matInput
+                    type="date"
+                    [formControlName]="field.key"
+                  />
                 </ng-container>
 
                 <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>

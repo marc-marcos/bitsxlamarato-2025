@@ -13,7 +13,7 @@ import { Subscription, catchError, finalize, throwError, timeout } from "rxjs";
 import { environment } from "../../../../../environments/environment";
 import { DataService } from "src/app/core/data/data.service";
 
-const PATIENT_FIELD_KEYS = [
+const NUMERIC_PATIENT_FIELD_KEYS = [
   "edad",
   "imc",
   "tipo_histologico",
@@ -48,15 +48,24 @@ const PATIENT_FIELD_KEYS = [
   "causa_muerte",
 ] as const;
 
+const DATE_PATIENT_FIELD_KEYS = [
+  "fecha_de_recidi",
+  "fecha_qx",
+  "visita_control",
+  "f_muerte",
+] as const;
+
+const PATIENT_FIELD_KEYS = [...NUMERIC_PATIENT_FIELD_KEYS, ...DATE_PATIENT_FIELD_KEYS] as const;
+
 type PatientFieldKey = (typeof PATIENT_FIELD_KEYS)[number];
 
 const TRAINING_FIELD_KEYS = [...PATIENT_FIELD_KEYS, "grupo_de_riesgo_definitivo"] as const;
 
 type TrainingFieldKey = (typeof TRAINING_FIELD_KEYS)[number];
 
-type PatientBackendPayload = Record<TrainingFieldKey, number | null>;
+type PatientBackendPayload = Record<TrainingFieldKey, number | string | null>;
 
-type ProcesarDatosRequest = Record<PatientFieldKey, number>;
+type ProcesarDatosRequest = Record<PatientFieldKey, number | string>;
 
 type ProcesarDatosResponse = {
   prediccionClase: number;
@@ -67,7 +76,7 @@ type ProcesarDatosResponse = {
   prob5: number;
 };
 
-type NuevaMuestraRequest = Record<TrainingFieldKey, number>;
+type NuevaMuestraRequest = Record<TrainingFieldKey, number | string>;
 
 type NuevaMuestraResponse = {
   status?: string;
@@ -75,7 +84,7 @@ type NuevaMuestraResponse = {
   mensaje?: string;
 };
 
-type FieldKind = "number" | "select";
+type FieldKind = "number" | "select" | "date";
 
 type SelectOption = {
   value: number;
@@ -310,6 +319,16 @@ const FIELD_GROUPS: ReadonlyArray<FieldGroup> = [
     ],
   },
   {
+    title: "Dates",
+    icon: "event",
+    fields: [
+      { key: "fecha_qx", label: "Data de cirurgia", kind: "date", required: true },
+      { key: "visita_control", label: "Data de darrera visita", kind: "date", required: true },
+      { key: "fecha_de_recidi", label: "Data de recidiva", kind: "date", required: true },
+      { key: "f_muerte", label: "Data de mort", kind: "date", required: true },
+    ],
+  },
+  {
     title: "Recidiva i evolució",
     icon: "history",
     fields: [
@@ -472,7 +491,10 @@ export class PatientFormComponent implements OnDestroy {
         continue;
       }
       if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
-      patch[key] = this.coerceNumber((obj as any)[key]);
+      const rawValue = (obj as any)[key];
+      patch[key] = DATE_PATIENT_FIELD_KEYS.includes(key as any)
+        ? this.coerceDateString(rawValue)
+        : this.coerceNumber(rawValue);
     }
 
     this.form.patchValue(patch, { emitEvent: false });
@@ -522,6 +544,33 @@ export class PatientFormComponent implements OnDestroy {
     return null;
   }
 
+  private coerceDateString(value: unknown): string | null {
+    if (value === null || value === undefined) return null;
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed || trimmed.toUpperCase() === "NA") return null;
+      if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+      return trimmed;
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return null;
+      return d.toISOString().slice(0, 10);
+    }
+    if (value instanceof Date) {
+      if (Number.isNaN(value.getTime())) return null;
+      return value.toISOString().slice(0, 10);
+    }
+    if (Array.isArray(value)) return this.coerceDateString(value[0]);
+    if (typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      if (Object.prototype.hasOwnProperty.call(obj, "0")) return this.coerceDateString(obj["0"]);
+      const firstKey = Object.keys(obj)[0];
+      return firstKey ? this.coerceDateString(obj[firstKey]) : null;
+    }
+    return null;
+  }
+
   private inferEstudioGeneticoFromLegacyFlags(obj: Record<string, unknown>): number | null {
     const mapping: ReadonlyArray<{ key: string; code: number }> = [
       { key: "estudio_genetico_r01", code: 1 },
@@ -544,20 +593,17 @@ export class PatientFormComponent implements OnDestroy {
   private buildRequestPayload(): ProcesarDatosRequest {
     const raw = this.form.getRawValue() as Record<string, unknown>;
     const payload: Partial<ProcesarDatosRequest> = {};
-    for (const key of PATIENT_FIELD_KEYS) {
-      const coerced = this.coerceNumber(raw[key]);
-      payload[key] = coerced ?? 0;
-    }
+    for (const key of NUMERIC_PATIENT_FIELD_KEYS) payload[key] = this.coerceNumber(raw[key]) ?? 0;
+    for (const key of DATE_PATIENT_FIELD_KEYS) payload[key] = this.coerceDateString(raw[key]) ?? "";
     return payload as ProcesarDatosRequest;
   }
 
   private buildTrainingPayload(): NuevaMuestraRequest {
     const raw = this.form.getRawValue() as Record<string, unknown>;
     const payload: Partial<NuevaMuestraRequest> = {};
-    for (const key of TRAINING_FIELD_KEYS) {
-      const coerced = this.coerceNumber(raw[key]);
-      payload[key] = coerced ?? 0;
-    }
+    for (const key of NUMERIC_PATIENT_FIELD_KEYS) payload[key] = this.coerceNumber(raw[key]) ?? 0;
+    for (const key of DATE_PATIENT_FIELD_KEYS) payload[key] = this.coerceDateString(raw[key]) ?? "";
+    payload["grupo_de_riesgo_definitivo"] = this.coerceNumber(raw["grupo_de_riesgo_definitivo"]) ?? 0;
     return payload as NuevaMuestraRequest;
   }
 

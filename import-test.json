@@ -29,5 +29,9 @@
     "tto_recidiva": 0,
     "Reseccion_macroscopica_complet": 1,
     "causa_muerte": 0,
-    "est_pcte": 3
+    "est_pcte": 3,
+    "fecha_de_recidi": "2025-05-10",
+    "fecha_qx": "2024-02-14",
+    "visita_control": "2025-07-21",
+    "f_muerte": "2026-01-03"
 }
