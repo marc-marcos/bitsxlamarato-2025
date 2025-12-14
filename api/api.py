@@ -132,7 +132,12 @@ privateRouter = APIRouter(
         
 def procesarDatos(datos: DatosPaciente):
     diccionario = datos.model_dump()
-    array = list(diccionario.values())  
+    campos_fecha = ["fecha_de_recidi", "fecha_qx", "visita_control"]
+    
+    for campo in campos_fecha:
+        diccionario.pop(campo, None)
+
+    array = list(diccionario.values())
     prediccionClase, probs = ai.predict(array)
     prediccionClase = int(prediccionClase)
     probs = probs[0].tolist()
@@ -155,7 +160,12 @@ def procesarDatos(datos: DatosPaciente):
 def nuevaMuestra(datos: DatosPacienteToTrain):
     
     diccionario = datos.model_dump()
+    campos_fecha = ["fecha_de_recidi", "fecha_qx", "visita_control"]
+    
+    for campo in campos_fecha:
+        diccionario.pop(campo, None)
     array = list(diccionario.values())
+    
     status = ai.add_sample(array)
     if status:
         return {"mensaje": "Nueva muestra agregada"}
