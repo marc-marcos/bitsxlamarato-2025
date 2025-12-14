@@ -28,7 +28,24 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+descripcionApi = """
+Aquesta API proporciona eines d'Intel·ligència Artificial per al suport al diagnòstic i tractament del càncer d'endometri. Integra models de predicció de risc, un assistent conversacional mèdic basat en guies clíniques i gestió segura d'usuaris.
+
+### Equip CheckTheRisk
+
+* **Sergio Ortiz Olivares** - sergio.ortiz.olivares@estudiantat.upc.edu
+* **Iván Moreno Santín** - ivan.moreno.santin@estudiantat.upc.edu
+* **Marc Marcos Madruga** - marc.marcos@estudiantat.upc.edu
+* **Hannah Rober** - hannah.rober@estudiantat.upc.edu
+
+**Repositori GitHub:**
+[https://github.com/marc-marcos/bitsxlamarato-2025](https://github.com/marc-marcos/bitsxlamarato-2025)
+"""
+
+app = FastAPI(
+    title="CheckTheRisk API - bitsxlaMarató 2025",
+    description=descripcionApi,
+    )
 
 origins = [
     "http://localhost:4200",    
