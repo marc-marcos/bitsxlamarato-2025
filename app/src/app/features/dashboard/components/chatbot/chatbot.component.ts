@@ -147,7 +147,7 @@ export class ChatbotComponent implements OnInit {
     const conf = probs[Math.max(0, Math.min(4, cls - 1))] ?? null;
 
     return [
-      `Resultat de /procesarDatos:`,
+      `Resultat:`,
       `- Classe: ${cls} (${this.riskLabel(cls)})`,
       `- Confiança: ${this.formatPct(conf)}`,
       ``,
