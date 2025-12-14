@@ -72,27 +72,19 @@ def preprocess_once(input_):
     return data_scaled
 
 
-def retrain(csv_string):
-    # Read from Sergio's CSV
-    csv_buffer = io.StringIO(csv_string)
-    new_csv = pd.read_csv(csv_buffer)
-
+def retrain(array):
     # Manual one hot encode, maybe have to convert to np array
 
-    one_hot_encoded = manual_one_hot_encoding(new_csv)
-
-    # Scale to our values
-
-    scaled = scaler.transform(one_hot_encoded)
+    preprocessed = preprocess_once(array)
 
     # Read from our CSV
     out_csv_df = pd.read_csv("dataset.csv")
 
     # Append from Sergio's dataframe to our data frame 
 
-    new_df = pd.concat([scaled, out_csv_df], ignore_index=True)
+    new_df = pd.concat([out_csv_df, preprocessed], ignore_index=True)
 
-    new_df.to_csv('dataset.csv', index=False)
+    new_df.to_csv('dataset_debug.csv', index=False)
 
     # Split into X and y
 
@@ -102,6 +94,8 @@ def retrain(csv_string):
     model.fit(x_, y_)
 
     joblib.dump(model, MODEL_PATH)
+
+    return True
 
 
 def load_model():
