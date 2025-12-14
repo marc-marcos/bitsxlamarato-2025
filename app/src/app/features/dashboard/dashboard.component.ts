@@ -39,7 +39,7 @@ export class DashboardComponent {
     this.router.navigateByUrl("/login");
   }
 
-  onAnalyze(): void {
+  onDataSubmit(): void {
     this.showReport = true;
   }
 

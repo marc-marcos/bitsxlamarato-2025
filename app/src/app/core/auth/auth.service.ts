@@ -69,7 +69,7 @@ export class AuthService {
         map((resp) => {
           const token = asNonEmptyString(resp.access_token);
           if (!token) {
-            throw new Error("Login correcto pero sin token en la respuesta.");
+            throw new Error("Login correcte però sense token en la resposta.");
           }
           return {
             token,
@@ -128,11 +128,11 @@ export class AuthService {
       const maybeDetail = (err.error && typeof err.error === "object" ? (err.error as any).detail : null) as unknown;
       if (typeof maybeDetail === "string" && maybeDetail.trim()) return new Error(maybeDetail.trim());
       
-      if (err.status === 401) return new Error("Usuario o contraseña incorrectos.");
+      if (err.status === 401) return new Error("Usuari o contrasenya incorrectes.");
       if (err.status) return new Error(`Error del backend (${err.status}).`);
-      return new Error("No se pudo conectar con el backend.");
+      return new Error("No s'ha pogut connectar amb el backend.");
     }
     if (err instanceof Error) return err;
-    return new Error("Error inesperado.");
+    return new Error("Error inesperat.");
   }
 }

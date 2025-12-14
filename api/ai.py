@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import io
 from sklearn.impute import KNNImputer
+import pandas as pd
+import io
+from sklearn.impute import KNNImputer
 
 MODEL_PATH = "../lr_gs.joblib"
 SCALER_PATH = "../scaler.joblib"

@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { AnalysisService } from '../../core/analysis/analysis.service';
 import { ChatbotComponent } from '../dashboard/components/chatbot/chatbot.component';
 import { RiskReportComponent } from '../dashboard/components/risk-report/risk-report.component';
+import { DataService } from 'src/app/core/data/data.service';
 
 @Component({
   selector: 'app-results',
@@ -17,23 +17,23 @@ import { RiskReportComponent } from '../dashboard/components/risk-report/risk-re
       <!-- Center: Risk Report -->
       <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
         <div class="max-w-4xl mx-auto h-full">
-          <app-risk-report [data]="analysisData"></app-risk-report>
+          <app-risk-report [data]="data"></app-risk-report>
         </div>
       </main>
 
       <!-- Right Sidebar: AI Chatbot -->
       <aside class="w-80 bg-white border-l border-gray-200 flex flex-col shadow-sm z-0">
-        <app-chatbot></app-chatbot>
+        <app-chatbot [data]="data"></app-chatbot>
       </aside>
     </div>
   `
 })
 export class ResultsComponent implements OnInit {
-  analysisData: any;
+  data: any;
 
-  constructor(private readonly analysisService: AnalysisService) {}
+  constructor(private readonly dataService: DataService) {}
 
   ngOnInit(): void {
-    this.analysisData = this.analysisService.getAnalysisData();
+    this.data = this.dataService.getData();
   }
 }

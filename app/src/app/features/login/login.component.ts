@@ -62,7 +62,7 @@ export class LoginComponent {
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          this.router.navigateByUrl("/analyze");
+          this.router.navigateByUrl("/data");
           this.cdr.markForCheck();
         },
         error: (err: unknown) => {
