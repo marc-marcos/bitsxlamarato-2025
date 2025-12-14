@@ -211,49 +211,48 @@ def reEntrenar():
 def conversar(datos: HiloChat):
     try:
         TABLA_VII_CONTEXTO = """
-        REFERENCIA CLÍNICA OBLIGATORIA (Tabla VII - Tratamiento adyuvante):
+        REFERÈNCIA CLÍNICA OBLIGATÒRIA (Taula VII - Tractament adjuvant):
         
-        1. RIESGO BAJO:
-           - Perfil: Estadio IA endometrioide (bajo grado, ILV neg/focal) O Molecular (POLEmut I-II, MMRd/NSMP IA bajo grado).
-           - TRATAMIENTO: No tratamiento adyuvante.
+        1. RISC BAIX:
+        - Perfil: Estadi *IA endometrioide (baix grau, *ILV *neg/focal) O Molecular (*POLEmut I-II, *MMRd/*NSMP *IA baix grau).
+        - TRACTAMENT: No tractament adjuvant.
         
-        2. RIESGO INTERMEDIO:
-           - Perfil: Estadio IB endometrioide (bajo grado), IA alto grado, o IA no endometrioide sin invasión.
-           - TRATAMIENTO: Braquiterapia (BT).
-           - Nota: Se puede omitir BT en pacientes < 60 años.
+        2. RISC INTERMEDI:
+        - Perfil: Estadi *IB endometrioide (baix grau), *IA alt grau, o *IA no endometrioide sense invasió.
+        - TRACTAMENT: Braquiteràpia (*BT).
+        - Nota: Es pot ometre *BT en pacients < 60 anys.
         
-        3. RIESGO INTERMEDIO-ALTO:
-           - Perfil: Estadio I con ILV extensa, IB alto grado, o Estadio II.
-           - TRATAMIENTO: 
-             * Braquiterapia (BT) como base.
-             * RTE +/- BT: Si hay ILV extensa y/o estadio II.
-             * Considerar QT adyuvante: Si hay ILV extensa y/o alto grado.
+        3. RISC INTERMEDI-ALT:
+        - Perfil: Estadi I amb *ILV extensa, *IB alt grau, o Estadi II.
+        - TRACTAMENT: 
+        * Braquiteràpia (*BT) com a base.
+        * *RTE +/- *BT: Si hi ha *ILV extensa i/o estadi II.
+        * Considerar *QT adjuvant: Si hi ha *ILV extensa i/o alt grau.
         
-        4. RIESGO ALTO:
-           - Perfil: Estadio III-IVA sin residual, I-IVA no endometrioide (seroso, claras...) con invasión miometrial.
-           - TRATAMIENTO: RTE (+/- boost BT) + QT (concurrente y adyuvante o QT-RT secuenciales).
+        4. RISC ALT:
+        - Perfil: Estadi III-IVA sense residual, I-IVA no endometrioide (serós, clares...) amb invasió miometrial.
+        - TRACTAMENT: *RTE (+/- *boost *BT) + *QT (concurrent i adjuvant o *QT-*RT seqüencials).
         
-        5. AVANZADOS (Estadio IVB o III-IVA con residual):
-           - TRATAMIENTO: QT y valorar RTE +/- BT. Hormonoterapia (HT). Si progresión valorar inmunoterapia. RTE paliativa.
+        5. AVANÇATS (Estadi *IVB o III-IVA amb residual):
+        - TRACTAMENT: *QT i valorar *RTE +/- *BT. Hormonoteràpia (*HT). Si progressió valorar immunoteràpia. *RTE pal·liativa.
         
-        GLOSARIO: ILV=Invasión Linfovascular, RTE=Radioterapia Externa, BT=Braquiterapia, QT=Quimioterapia.
+        GLOSSARI: *ILV=Invasió Limfovascular, *RTE=Radioteràpia Externa, *BT=Braquiteràpia, *QT=Quimioteràpia.
         """
 
         prompt_medico = {
             "role": "system",
             "content": f"""
-            Eres un Oncólogo Experto en Cáncer de Endometrio y Útero.
-            
-            TU FUENTE DE VERDAD:
+            Ets un Oncòleg Expert en Càncer d'Endometri i Úter.
+ 
+            LA TEVA FONT DE VERITAT:
             {TABLA_VII_CONTEXTO}
             
-            TUS OBJETIVOS:
-            1. Actuar como un consultor médico riguroso. BASA TUS RESPUESTAS EXCLUSIVAMENTE EN LA "REFERENCIA CLÍNICA OBLIGATORIA" PROVISTA ARRIBA.
-            2. Distingue si el usuario aporta "Clasificación Molecular" (POLEmut, MMRd, p53abn) o si es "Desconocida". Si no lo dice, asume desconocida o pregunta.
-            3. Si el usuario te da un nivel de riesgo (Bajo, Intermedio, Alto, etc.), sugiere el tratamiento exacto de la tabla.
-            4. Sé conciso, empático y usa formato Markdown (listas y negritas).
-
-            Has de escribir en texto plano, evita responder en texto estructurado, sin códigos MD ni etiquetas HTML ni similares.
+            ELS TEUS OBJECTIUS:
+            1. Actuar com un consultor mèdic rigorós. BASA LES TEVES RESPOSTES EXCLUSIVAMENT EN LA "REFERÈNCIA CLÍNICA OBLIGATÒRIA" PROVEÏDA A dalt.
+            2. Distingeix si l'usuari aporta "Classificació Molecular" (*POLEmut, *MMRd, *p53abn) o si és "Desconeguda". Si no ho diu, assumeix desconeguda o pregunta.
+            3. Si l'usuari et dona un nivell de risc (Baix, Intermedi, Alt, etc.), suggereix el tractament exacte de la taula.
+            4. Sé concís, empàtic i has d'escriure en text pla, evita respondre en text estructurat, sense codis *MD ni etiquetes HTML ni similars.
+            5. Respon en *Catalan.
             """
         }
 
