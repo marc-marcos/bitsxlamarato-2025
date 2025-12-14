@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List
+from datetime import date
 
 class UserCreate(BaseModel):
     username: str
@@ -57,6 +58,10 @@ class DatosPaciente(BaseModel):
     libre_enferm: float
     causa_muerte: float
 
+    fecha_de_recidi: date
+    fecha_qx: date
+    visita_control: date
+
 class DatosPacienteToTrain(BaseModel):
     edad: float
     imc: float
@@ -97,4 +102,9 @@ class DatosPacienteToTrain(BaseModel):
     tto_recidiva: float
     libre_enferm: float
     causa_muerte: float
+
+    fecha_de_recidi: date
+    fecha_qx: date
+    visita_control: date
+
     grupo_de_riesgo_definitivo: float
