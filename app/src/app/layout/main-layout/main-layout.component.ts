@@ -6,6 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-main-layout',
@@ -40,6 +41,10 @@ import { AuthService } from '../../core/auth/auth.service';
         </nav>
 
         <span class="flex-1"></span>
+
+        <button mat-icon-button (click)="retrain()" class="!text-white hover:bg-blue-700 rounded-full transition-colors" title="Reentrenar">
+          <mat-icon>refresh</mat-icon>
+        </button>
         
         <button mat-icon-button (click)="logout()" class="!text-white hover:bg-blue-700 rounded-full transition-colors">
           <mat-icon>logout</mat-icon>
@@ -56,10 +61,25 @@ import { AuthService } from '../../core/auth/auth.service';
 export class MainLayoutComponent {
   readonly appName = environment.appName;
 
+  private readonly apiBaseUrl = environment.apiBaseUrl.replace(/\/+$/, "");
+
   constructor(
     private readonly auth: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly http: HttpClient,
   ) {}
+
+  retrain(): void {
+    this.http.post<unknown>(`${this.apiBaseUrl}/reEntrenar`, null).subscribe({
+      next: () => {
+        alert('Proceso de reentrenamiento iniciado.');
+      }
+      , error: (err) => {
+        console.error('Error al iniciar el reentrenamiento:', err);
+        alert('Error al iniciar el proceso de reentrenamiento.');
+      }
+    });
+  }
 
   logout(): void {
     this.auth.logout();

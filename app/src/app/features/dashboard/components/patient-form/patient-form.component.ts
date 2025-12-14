@@ -1,15 +1,17 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, EventEmitter, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, Output } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { catchError, finalize, throwError, timeout } from "rxjs";
+import { Subscription, catchError, finalize, throwError, timeout } from "rxjs";
 import { environment } from "../../../../../environments/environment";
+import { DataService } from "src/app/core/data/data.service";
 
 const PATIENT_FIELD_KEYS = [
   "edad",
@@ -48,7 +50,11 @@ const PATIENT_FIELD_KEYS = [
 
 type PatientFieldKey = (typeof PATIENT_FIELD_KEYS)[number];
 
-type PatientBackendPayload = Record<PatientFieldKey, number | null>;
+const TRAINING_FIELD_KEYS = [...PATIENT_FIELD_KEYS, "grupo_de_riesgo_definitivo"] as const;
+
+type TrainingFieldKey = (typeof TRAINING_FIELD_KEYS)[number];
+
+type PatientBackendPayload = Record<TrainingFieldKey, number | null>;
 
 type ProcesarDatosRequest = Record<PatientFieldKey, number>;
 
@@ -61,6 +67,14 @@ type ProcesarDatosResponse = {
   prob5: number;
 };
 
+type NuevaMuestraRequest = Record<TrainingFieldKey, number>;
+
+type NuevaMuestraResponse = {
+  status?: string;
+  message?: string;
+  mensaje?: string;
+};
+
 type FieldKind = "number" | "select";
 
 type SelectOption = {
@@ -69,7 +83,7 @@ type SelectOption = {
 };
 
 type FieldDef = {
-  key: PatientFieldKey;
+  key: TrainingFieldKey;
   label: string;
   kind: FieldKind;
   required?: boolean;
@@ -83,6 +97,7 @@ type FieldGroup = {
   title: string;
   icon: string;
   fields: ReadonlyArray<FieldDef>;
+  onlyWhenTraining?: boolean;
 };
 
 const YES_NO_OPTIONS: ReadonlyArray<SelectOption> = [
@@ -166,6 +181,14 @@ const LIBRE_ENFERM_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 0, label: "No" },
   { value: 1, label: "Sí" },
   { value: 2, label: "Desconocido" },
+];
+
+const GRUPO_RIESGO_DEFINITIVO_OPTIONS: ReadonlyArray<SelectOption> = [
+  { value: 1, label: "Riesgo bajo" },
+  { value: 2, label: "Riesgo intermedio" },
+  { value: 3, label: "Riesgo intermedio-alto" },
+  { value: 4, label: "Riesgo alto" },
+  { value: 5, label: "Avanzados" },
 ];
 
 const TTO_RECIDIVA_OPTIONS: ReadonlyArray<SelectOption> = [
@@ -298,6 +321,14 @@ const FIELD_GROUPS: ReadonlyArray<FieldGroup> = [
       { key: "causa_muerte", label: "Causa de muerte", kind: "select", required: true, options: CAUSA_MUERTE_OPTIONS, defaultValue: 2 },
     ],
   },
+  {
+    title: "Entrenamiento",
+    icon: "school",
+    onlyWhenTraining: true,
+    fields: [
+      { key: "grupo_de_riesgo_definitivo", label: "Grupo de riesgo definitivo", kind: "select", required: true, options: GRUPO_RIESGO_DEFINITIVO_OPTIONS },
+    ],
+  },
 ];
 
 const ALL_FIELDS: ReadonlyArray<FieldDef> = FIELD_GROUPS.flatMap((g) => g.fields);
@@ -309,6 +340,7 @@ const ALL_FIELDS: ReadonlyArray<FieldDef> = FIELD_GROUPS.flatMap((g) => g.fields
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -317,7 +349,7 @@ const ALL_FIELDS: ReadonlyArray<FieldDef> = FIELD_GROUPS.flatMap((g) => g.fields
   ],
   templateUrl: "./patient-form.component.html",
 })
-export class PatientFormComponent {
+export class PatientFormComponent implements OnDestroy {
   @Output() dataSubmit = new EventEmitter<{ request: ProcesarDatosRequest; response: ProcesarDatosResponse }>();
 
   readonly fieldGroups = FIELD_GROUPS;
@@ -326,38 +358,73 @@ export class PatientFormComponent {
   submitError: string | null = null;
   isSubmitting = false;
   lastResponse: ProcesarDatosResponse | null = null;
+  lastTrainingResponse: NuevaMuestraResponse | null = null;
 
   form = this.fb.group(
     Object.fromEntries(
-      ALL_FIELDS.map(({ key, required, defaultValue }) => [
-        key,
-        required ? [defaultValue ?? null, Validators.required] : [defaultValue ?? null],
-      ]),
-    ) as Record<PatientFieldKey, any>,
+      [
+        ...ALL_FIELDS.map(({ key, required, defaultValue }) => [
+          key,
+          required ? [defaultValue ?? null, Validators.required] : [defaultValue ?? null],
+        ]),
+        ["sendToTraining", [false]],
+      ],
+    ) as Record<string, any>,
   );
 
   private readonly apiBaseUrl = environment.apiBaseUrl.replace(/\/+$/, "");
   private readonly defaultFormValues = Object.fromEntries(
-    ALL_FIELDS.map(({ key, defaultValue }) => [key, defaultValue ?? null]),
-  ) as Record<PatientFieldKey, number | null>;
+    [
+      ...ALL_FIELDS.map(({ key, defaultValue }) => [key, defaultValue ?? null]),
+      ["sendToTraining", false],
+    ],
+  ) as Record<string, any>;
+
+  private persistTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly subscriptions = new Subscription();
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly http: HttpClient,
     private readonly cdr: ChangeDetectorRef,
-  ) {}
+    private readonly dataService: DataService,
+  ) {
+    this.updateTrainingMode(this.sendToTraining);
+    const sendToTrainingCtrl = this.form.get("sendToTraining");
+    if (sendToTrainingCtrl) {
+      this.subscriptions.add(sendToTrainingCtrl.valueChanges.subscribe((next) => this.updateTrainingMode(next === true)));
+    }
+
+    const draft = this.dataService.getDraft();
+    if (draft && typeof draft === "object") {
+      this.restoreDraft(draft);
+    } else {
+      this.persistDraft();
+    }
+
+    this.subscriptions.add(this.form.valueChanges.subscribe(() => this.schedulePersistDraft()));
+  }
+
+  get sendToTraining(): boolean {
+    return this.form.get("sendToTraining")?.value === true;
+  }
 
   clearForm(): void {
     this.form.reset(this.defaultFormValues);
     this.jsonParseError = null;
     this.submitError = null;
     this.lastResponse = null;
+    this.lastTrainingResponse = null;
+    this.updateTrainingMode(false);
+    this.jsonInput = "";
+    this.dataService.clearDraft();
   }
 
   onJsonTextChanged(next: string): void {
     this.jsonInput = next ?? "";
     this.jsonParseError = null;
     this.submitError = null;
+    this.schedulePersistDraft();
   }
 
   async onJsonFileSelected(event: Event): Promise<void> {
@@ -379,6 +446,7 @@ export class PatientFormComponent {
   applyJsonInput(): void {
     this.jsonParseError = null;
     this.submitError = null;
+    this.lastTrainingResponse = null;
     const raw = this.jsonInput.trim();
     if (!raw) return;
 
@@ -408,6 +476,7 @@ export class PatientFormComponent {
     }
 
     this.form.patchValue(patch, { emitEvent: false });
+    this.persistDraft();
   }
 
   private extractCandidateObject(parsed: unknown): Record<string, unknown> | null {
@@ -482,21 +551,62 @@ export class PatientFormComponent {
     return payload as ProcesarDatosRequest;
   }
 
-  submitToBackend(): void {
-    this.jsonParseError = null;
-    this.submitError = null;
-    this.lastResponse = null;
-
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+  private buildTrainingPayload(): NuevaMuestraRequest {
+    const raw = this.form.getRawValue() as Record<string, unknown>;
+    const payload: Partial<NuevaMuestraRequest> = {};
+    for (const key of TRAINING_FIELD_KEYS) {
+      const coerced = this.coerceNumber(raw[key]);
+      payload[key] = coerced ?? 0;
     }
+    return payload as NuevaMuestraRequest;
+  }
 
-    const request = this.buildRequestPayload();
+  private updateTrainingMode(enabled: boolean): void {
+    const ctrl = this.form.get("grupo_de_riesgo_definitivo");
+    if (!ctrl) return;
+
+    if (enabled) {
+      ctrl.enable({ emitEvent: false });
+    } else {
+      ctrl.disable({ emitEvent: false });
+    }
+    this.cdr.markForCheck();
+  }
+
+  private schedulePersistDraft(): void {
+    if (this.persistTimer) clearTimeout(this.persistTimer);
+    this.persistTimer = setTimeout(() => this.persistDraft(), 50);
+  }
+
+  ngOnDestroy(): void {
+    if (this.persistTimer) clearTimeout(this.persistTimer);
+    this.persistTimer = null;
+    this.subscriptions.unsubscribe();
+  }
+
+  private persistDraft(): void {
+    this.dataService.setDraft({
+      form: this.form.getRawValue(),
+      jsonInput: this.jsonInput,
+    });
+  }
+
+  private restoreDraft(draft: any): void {
+    const formDraft = draft && typeof draft === "object" ? (draft as any).form : null;
+    const jsonDraft = draft && typeof draft === "object" ? (draft as any).jsonInput : null;
+
+    if (typeof jsonDraft === "string") this.jsonInput = jsonDraft;
+    if (formDraft && typeof formDraft === "object") {
+      this.form.reset({ ...this.defaultFormValues, ...(formDraft as any) }, { emitEvent: false });
+      this.updateTrainingMode(this.sendToTraining);
+    }
+    this.cdr.markForCheck();
+  }
+
+  private submitRequest<TResponse>(path: string, request: unknown, onSuccess: (resp: TResponse) => void): void {
     this.isSubmitting = true;
-
     this.http
-      .post<ProcesarDatosResponse>(`${this.apiBaseUrl}/procesarDatos`, request)
+      .post<TResponse>(`${this.apiBaseUrl}${path}`, request)
       .pipe(
         timeout({ first: environment.requestTimeoutMs }),
         catchError((err) => throwError(() => this.humanizeSubmitError(err))),
@@ -506,8 +616,7 @@ export class PatientFormComponent {
       )
       .subscribe({
         next: (resp) => {
-          this.lastResponse = resp;
-          this.dataSubmit.emit({ request, response: resp });
+          onSuccess(resp);
           this.cdr.markForCheck();
         },
         error: (err: Error) => {
@@ -515,6 +624,34 @@ export class PatientFormComponent {
           this.cdr.markForCheck();
         },
       });
+  }
+
+  submitToBackend(): void {
+    this.jsonParseError = null;
+    this.submitError = null;
+    this.lastResponse = null;
+    this.lastTrainingResponse = null;
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    if (this.sendToTraining) {
+      const request = this.buildTrainingPayload();
+      this.submitRequest<NuevaMuestraResponse>("/nuevaMuestra", request, (resp) => {
+        this.lastTrainingResponse = resp;
+        this.clearForm();
+      });
+      return;
+    }
+
+    const request = this.buildRequestPayload();
+    this.submitRequest<ProcesarDatosResponse>("/procesarDatos", request, (resp) => {
+      this.lastResponse = resp;
+      this.dataSubmit.emit({ request, response: resp });
+      this.persistDraft();
+    });
   }
 
   private humanizeSubmitError(err: unknown): Error {

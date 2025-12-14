@@ -8,11 +8,26 @@ export class DataService {
   private readonly data = new BehaviorSubject<any>(null);
   readonly data$ = this.data.asObservable();
 
+  private readonly draft = new BehaviorSubject<any>(null);
+  readonly draft$ = this.draft.asObservable();
+
   setData(data: any): void {
     this.data.next(data);
   }
 
   getData(): any {
     return this.data.value;
+  }
+
+  setDraft(draft: any): void {
+    this.draft.next(draft);
+  }
+
+  getDraft(): any {
+    return this.draft.value;
+  }
+
+  clearDraft(): void {
+    this.draft.next(null);
   }
 }

@@ -92,7 +92,7 @@ type ProcesarDatosResponse = {
               <mat-icon class="text-gray-500 mt-0.5">warning</mat-icon>
               <div>
                 <div class="font-semibold">No hay resultados disponibles</div>
-                <div class="text-sm text-gray-500 mt-1">Vuelve a la página de análisis y procesa un caso para ver el reporte.</div>
+                <div class="text-sm text-gray-500 mt-1">Vuelve a la página de datos y procesa un caso para ver el reporte.</div>
               </div>
             </div>
           </div>

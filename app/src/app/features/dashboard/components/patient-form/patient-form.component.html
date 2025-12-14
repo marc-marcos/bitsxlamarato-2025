@@ -22,7 +22,25 @@
     </div>
 
     <form [formGroup]="form" class="grid grid-cols-1 gap-6">
+      <mat-card class="p-4 shadow-sm border border-gray-100">
+        <div class="flex flex-row gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-start gap-3">
+            <mat-icon class="text-blue-600 mt-0.5">tune</mat-icon>
+            <div>
+              <div class="font-semibold text-gray-800">Modo de envío</div>
+              <div class="text-sm text-gray-500">
+                Desactivado: procesa el caso. Activado: guarda una muestra en el dataset (requiere grupo de riesgo definitivo).
+              </div>
+            </div>
+          </div>
+        </div>
+        <mat-checkbox formControlName="sendToTraining" class="text-sm">
+          Nueva muestra para entrenamiento
+        </mat-checkbox>
+      </mat-card>
+
       <ng-container *ngFor="let group of fieldGroups">
+        <ng-container *ngIf="!group.onlyWhenTraining || sendToTraining">
         <mat-card class="p-4 shadow-sm border border-gray-100">
           <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
             <mat-icon class="text-indigo-500">{{ group.icon }}</mat-icon>
@@ -58,6 +76,7 @@
             </ng-container>
           </div>
         </mat-card>
+        </ng-container>
       </ng-container>
 
       <button mat-stroked-button type="button" class="bg-white" (click)="clearForm()">
@@ -74,13 +93,16 @@
           [disabled]="form.invalid || isSubmitting"
           (click)="submitToBackend()"
         >
-          <mat-icon class="mr-2">{{ isSubmitting ? 'hourglass_top' : 'cloud_upload' }}</mat-icon>
-          {{ isSubmitting ? 'Enviando...' : 'Procesar en backend' }}
+          <mat-icon class="mr-2">{{ isSubmitting ? 'hourglass_top' : (sendToTraining ? 'save' : 'cloud_upload') }}</mat-icon>
+          {{ isSubmitting ? 'Enviando...' : (sendToTraining ? 'Guardar' : 'Predecir') }}
         </button>
       </div>
       <div *ngIf="submitError" class="text-sm text-red-600 text-right -mt-4">{{ submitError }}</div>
       <div *ngIf="lastResponse" class="text-sm text-gray-600 text-right -mt-4">
         Resultado: clase {{ lastResponse.prediccionClase }}
+      </div>
+      <div *ngIf="lastTrainingResponse" class="text-sm text-gray-600 text-right -mt-4">
+        {{ lastTrainingResponse.message || lastTrainingResponse.mensaje || lastTrainingResponse.status || 'Muestra guardada' }}
       </div>
     </form>
   </div>
