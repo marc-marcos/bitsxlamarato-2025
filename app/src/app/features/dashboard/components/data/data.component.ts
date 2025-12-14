@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AnalysisService } from '../../core/analysis/analysis.service';
-import { PatientFormComponent } from '../dashboard/components/patient-form/patient-form.component';
+import { PatientFormComponent } from '../patient-form/patient-form.component';
+import { DataService } from 'src/app/core/data/data.service';
 
 @Component({
-  selector: 'app-analyze',
+  selector: 'app-data',
   standalone: true,
   imports: [PatientFormComponent],
   template: `
@@ -15,19 +15,19 @@ import { PatientFormComponent } from '../dashboard/components/patient-form/patie
           <p class="text-gray-600">Complete los datos del paciente para generar un reporte de riesgo cardiovascular.</p>
         </div>
         
-        <app-patient-form (analyze)="onAnalyze($event)"></app-patient-form>
+        <app-patient-form (dataSubmit)="onDataSubmit($event)"></app-patient-form>
       </div>
     </div>
   `
 })
-export class AnalyzeComponent {
+export class DataComponent {
   constructor(
-    private readonly analysisService: AnalysisService,
+    private readonly dataService: DataService,
     private readonly router: Router
   ) {}
 
-  onAnalyze(data: any): void {
-    this.analysisService.setAnalysisData(data);
+  onDataSubmit(data: any): void {
+    this.dataService.setData(data);
     this.router.navigate(['/results']);
   }
 }

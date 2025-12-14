@@ -318,7 +318,7 @@ const ALL_FIELDS: ReadonlyArray<FieldDef> = FIELD_GROUPS.flatMap((g) => g.fields
   templateUrl: "./patient-form.component.html",
 })
 export class PatientFormComponent {
-  @Output() analyze = new EventEmitter<{ request: ProcesarDatosRequest; response: ProcesarDatosResponse }>();
+  @Output() dataSubmit = new EventEmitter<{ request: ProcesarDatosRequest; response: ProcesarDatosResponse }>();
 
   readonly fieldGroups = FIELD_GROUPS;
   jsonInput = "";
@@ -507,7 +507,7 @@ export class PatientFormComponent {
       .subscribe({
         next: (resp) => {
           this.lastResponse = resp;
-          this.analyze.emit({ request, response: resp });
+          this.dataSubmit.emit({ request, response: resp });
           this.cdr.markForCheck();
         },
         error: (err: Error) => {

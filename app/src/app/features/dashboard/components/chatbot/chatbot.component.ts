@@ -96,15 +96,15 @@ type ChatMessage = {
   `]
 })
 export class ChatbotComponent implements OnInit {
-  @Input() analysisData: any;
+  @Input() data: any;
 
   private readonly apiBaseUrl = environment.apiBaseUrl.replace(/\/+$/, "");
 
   messages: ChatMessage[] = [];
   private readonly apiHistory: ApiMessage[] = [];
 
-  private analysisContextForFirstPrompt: string | null = null;
-  private hasInjectedAnalysisContext = false;
+  private dataContextForFirstPrompt: string | null = null;
+  private hasInjectedDataContext = false;
 
   newMessage = "";
   isSending = false;
@@ -113,12 +113,12 @@ export class ChatbotComponent implements OnInit {
   constructor(private readonly http: HttpClient, private readonly cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.refreshAnalysisContext();
+    this.refreshDataContext();
     this.ensureIntroMessage();
   }
 
   ngOnChanges(): void {
-    this.refreshAnalysisContext();
+    this.refreshDataContext();
     this.ensureIntroMessage();
   }
 
@@ -155,11 +155,11 @@ export class ChatbotComponent implements OnInit {
     ].join("\n");
   }
 
-  private refreshAnalysisContext(): void {
+  private refreshDataContext(): void {
     const r = this.getProcesarDatosResponse();
     if (!r) {
-      this.analysisContextForFirstPrompt = null;
-      this.hasInjectedAnalysisContext = false;
+      this.dataContextForFirstPrompt = null;
+      this.hasInjectedDataContext = false;
       return;
     }
 
@@ -167,7 +167,7 @@ export class ChatbotComponent implements OnInit {
     const probs = [r.prob1, r.prob2, r.prob3, r.prob4, r.prob5].map((p) => this.normalizeProbability(p));
     const conf = probs[Math.max(0, Math.min(4, cls - 1))] ?? null;
 
-    this.analysisContextForFirstPrompt = [
+    this.dataContextForFirstPrompt = [
       `Contexto del caso: el endpoint /procesarDatos ha devuelto clase ${cls} (${this.riskLabel(cls)}).`,
       `Probabilidades: [${probs.map((p) => this.formatPct(p)).join(", ")}].`,
       `Confianza clase predicha: ${this.formatPct(conf)}.`,
@@ -176,7 +176,7 @@ export class ChatbotComponent implements OnInit {
   }
 
   private getProcesarDatosResponse(): { prediccionClase: number; prob1: number; prob2: number; prob3: number; prob4: number; prob5: number } | null {
-    const resp = this.analysisData && typeof this.analysisData === "object" ? (this.analysisData as any).response : null;
+    const resp = this.data && typeof this.data === "object" ? (this.data as any).response : null;
     if (!resp || typeof resp !== "object") return null;
     if (typeof (resp as any).prediccionClase !== "number") return null;
     const probs = [(resp as any).prob1, (resp as any).prob2, (resp as any).prob3, (resp as any).prob4, (resp as any).prob5];
@@ -228,9 +228,9 @@ export class ChatbotComponent implements OnInit {
     this.newMessage = "";
 
     let contentForApi = raw;
-    if (!this.hasInjectedAnalysisContext && this.analysisContextForFirstPrompt) {
-      contentForApi = `${this.analysisContextForFirstPrompt}\n\nPregunta del usuario: ${raw}`;
-      this.hasInjectedAnalysisContext = true;
+    if (!this.hasInjectedDataContext && this.dataContextForFirstPrompt) {
+      contentForApi = `${this.dataContextForFirstPrompt}\n\nPregunta del usuario: ${raw}`;
+      this.hasInjectedDataContext = true;
     }
 
     this.apiHistory.push({ role: "user", content: contentForApi });

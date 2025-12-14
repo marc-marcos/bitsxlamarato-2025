@@ -27,10 +27,10 @@ import { AuthService } from '../../core/auth/auth.service';
         
         <!-- Navigation -->
         <nav class="flex gap-4">
-          <a routerLink="/analyze" 
+          <a routerLink="/data" 
              routerLinkActive="bg-blue-700" 
              class="px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-500 transition-colors text-white no-underline">
-            Analyze
+            Data
           </a>
           <a routerLink="/results" 
              routerLinkActive="bg-blue-700" 
