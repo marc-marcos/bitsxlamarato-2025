@@ -10,9 +10,6 @@ SCALER_PATH = "../scaler.joblib"
 model = None
 scaler = None
 
-def add_new_data():
-    pass
-
 def predict(inputs):
     global model
     load_model()
@@ -38,7 +35,6 @@ def manual_one_hot_encoding(input_):
     """
     # 1. Convert to list if it's a numpy array for easier slicing
 
-    print(input_)
 
     # 2. Extract the value to be encoded (originally at index 11)
     # We assume the value is a float/int representing the category (e.g., 1.0 to 6.0)
@@ -67,7 +63,6 @@ def preprocess_once(input_):
     # Manual one hot encoding
     data_one_hot = manual_one_hot_encoding(input_)
 
-
     # Scaling
     data_scaled = scaler.transform(data_one_hot)
 
@@ -76,26 +71,40 @@ def preprocess_once(input_):
 
 def add_sample(array):
     # Manual one hot encode, maybe have to convert to np array
-    preprocessed = preprocess_once(array)
+    X_pre = preprocess_once(array[:-1])
+    y = array[-1]
+
+    y_reshaped = np.array([[y]]) 
+    preprocessed_row = np.hstack((X_pre, y_reshaped))
 
     # Read from our CSV
-    out_csv_df = pd.read_csv("dataset.csv")
+    out_csv_df = pd.read_csv("../database_model.csv")
 
     # Append from Sergio's dataframe to our data frame 
+    print(out_csv_df.shape)
 
-    new_df = pd.concat([out_csv_df, preprocessed], ignore_index=True)
+    new_row_df = pd.DataFrame(preprocessed_row, columns=out_csv_df.columns)
+    
 
-    new_df.to_csv('dataset.csv', index=False)
+    new_df = pd.concat([out_csv_df, new_row_df], ignore_index=True)
+
+    new_df.to_csv('../database_model.csv', index=False)
 
     return True
 
 def retrain():
-    df = pd.read_csv("dataset.csv")
+    df = pd.read_csv("../database_model.csv")
+    
+    print(df)
 
     y_ = df['grupo_de_riesgo_definitivo']
     x_ = df.drop('grupo_de_riesgo_definitivo', axis=1)
 
+    print(y_)
+    print(x_.shape)
+
     model.fit(x_, y_)
+    joblib.dump(model, MODEL_PATH)
 
     return True
 
@@ -307,8 +316,9 @@ if __name__ == "__main__":
     # Load the model from the file
     load_model()
 
-    dummy_input = np.random.rand(1, 31).astype(np.float64)
-    dummy_input[0, 11] = 2.0
-    dummy_input = dummy_input[0].tolist()
+    dummy_input = [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-    (pred_class, probabilities) = predict(dummy_input)
+    add_sample(dummy_input)
+
+    retrain()
+
