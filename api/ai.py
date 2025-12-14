@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import io
 from sklearn.impute import KNNImputer
+import pandas as pd
+import io
+from sklearn.impute import KNNImputer
 
 MODEL_PATH = "../lr_gs.joblib"
 SCALER_PATH = "../scaler.joblib"
@@ -69,44 +72,36 @@ def preprocess_once(input_):
     return data_scaled
 
 
-def add_sample(array):
-    # Manual one hot encode, maybe have to convert to np array
-    X_pre = preprocess_once(array[:-1])
-    y = array[-1]
+def retrain(csv_string):
+    # Read from Sergio's CSV
+    csv_buffer = io.StringIO(csv_string)
+    new_csv = pd.read_csv(csv_buffer)
 
-    y_reshaped = np.array([[y]]) 
-    preprocessed_row = np.hstack((X_pre, y_reshaped))
+    # Manual one hot encode, maybe have to convert to np array
+
+    one_hot_encoded = manual_one_hot_encoding(new_csv)
+
+    # Scale to our values
+
+    scaled = scaler.transform(one_hot_encoded)
 
     # Read from our CSV
-    out_csv_df = pd.read_csv("../database_model.csv")
+    out_csv_df = pd.read_csv("dataset.csv")
 
     # Append from Sergio's dataframe to our data frame 
-    print(out_csv_df.shape)
 
-    new_row_df = pd.DataFrame(preprocessed_row, columns=out_csv_df.columns)
-    
+    new_df = pd.concat([scaled, out_csv_df], ignore_index=True)
 
-    new_df = pd.concat([out_csv_df, new_row_df], ignore_index=True)
+    new_df.to_csv('dataset.csv', index=False)
 
-    new_df.to_csv('../database_model.csv', index=False)
+    # Split into X and y
 
-    return True
-
-def retrain():
-    df = pd.read_csv("../database_model.csv")
-    
-    print(df)
-
-    y_ = df['grupo_de_riesgo_definitivo']
-    x_ = df.drop('grupo_de_riesgo_definitivo', axis=1)
-
-    print(y_)
-    print(x_.shape)
+    y_ = new_df['grupo_de_riesgo_definitivo']
+    x_ = new_df.drop('grupo_de_riesgo_definitivo', axis=1)
 
     model.fit(x_, y_)
-    joblib.dump(model, MODEL_PATH)
 
-    return True
+    joblib.dump(model, MODEL_PATH)
 
 
 def load_model():
@@ -164,6 +159,7 @@ def train_preprocess(df_in):
     'Tratamiento_sistemico', 'causa_muerte', 'libre_enferm',
     'fecha_de_recidi', 'tto_recidiva', 'Reseccion_macroscopica_complet'
   ]
+
 
   valid_columns = list(dict.fromkeys([col for col in columns_to_keep if col in df.columns]))
 
@@ -316,9 +312,8 @@ if __name__ == "__main__":
     # Load the model from the file
     load_model()
 
-    dummy_input = [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    dummy_input = np.random.rand(1, 31).astype(np.float64)
+    dummy_input[0, 11] = 2.0
+    dummy_input = dummy_input[0].tolist()
 
-    add_sample(dummy_input)
-
-    retrain()
-
+    (pred_class, probabilities) = predict(dummy_input)
