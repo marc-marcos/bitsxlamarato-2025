@@ -72,9 +72,8 @@ def preprocess_once(input_):
     return data_scaled
 
 
-def retrain(array):
+def add_sample(array):
     # Manual one hot encode, maybe have to convert to np array
-
     preprocessed = preprocess_once(array)
 
     # Read from our CSV
@@ -84,16 +83,17 @@ def retrain(array):
 
     new_df = pd.concat([out_csv_df, preprocessed], ignore_index=True)
 
-    new_df.to_csv('dataset_debug.csv', index=False)
+    new_df.to_csv('dataset.csv', index=False)
 
-    # Split into X and y
+    return True
 
-    y_ = new_df['grupo_de_riesgo_definitivo']
-    x_ = new_df.drop('grupo_de_riesgo_definitivo', axis=1)
+def retrain():
+    df = pd.read_csv("dataset.csv")
+
+    y_ = df['grupo_de_riesgo_definitivo']
+    x_ = df.drop('grupo_de_riesgo_definitivo', axis=1)
 
     model.fit(x_, y_)
-
-    joblib.dump(model, MODEL_PATH)
 
     return True
 
@@ -153,7 +153,6 @@ def train_preprocess(df_in):
     'Tratamiento_sistemico', 'causa_muerte', 'libre_enferm',
     'fecha_de_recidi', 'tto_recidiva', 'Reseccion_macroscopica_complet'
   ]
-
 
   valid_columns = list(dict.fromkeys([col for col in columns_to_keep if col in df.columns]))
 
