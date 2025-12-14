@@ -82,7 +82,7 @@ function inferHasHeader(rows: string[][], columnIdx: number): boolean {
 
 function parseCsvColumn(text: string): { columnName: string; values: unknown[] } {
   const rows = parseCsvRows(text);
-  if (!rows.length) throw new Error("El CSV está vacío.");
+  if (!rows.length) throw new Error("El CSV està buit.");
 
   const maxCols = rows.reduce((m, row) => Math.max(m, row.length), 0);
   let columnIdx = 0;
@@ -103,7 +103,7 @@ function parseCsvColumn(text: string): { columnName: string; values: unknown[] }
   }
 
   const values = dataRows.filter((row) => row.length > columnIdx).map((row) => row[columnIdx]);
-  if (!values.length) throw new Error("No se encontraron valores en la columna seleccionada.");
+  if (!values.length) throw new Error("No s'han trobat valors a la columna seleccionada.");
 
   return { columnName, values };
 }
@@ -112,13 +112,13 @@ function parseJsonColumn(text: string): { columnName: string; values: unknown[] 
   const payload = JSON.parse(text.replace(/^\uFEFF/, ""));
 
   if (Array.isArray(payload)) {
-    if (!payload.length) throw new Error("No se encontraron valores en el JSON.");
+    if (!payload.length) throw new Error("No s'han trobat valors al JSON.");
     return { columnName: "Valores", values: payload };
   }
 
   if (payload && typeof payload === "object") {
     const entries = Object.entries(payload as Record<string, unknown>);
-    if (!entries.length) throw new Error("No se encontraron valores en el JSON.");
+    if (!entries.length) throw new Error("No s'han trobat valors al JSON.");
 
     if (entries.length === 1) {
       const [columnName, maybeList] = entries[0];
@@ -153,24 +153,24 @@ function isNumeric(text: string): boolean {
 
 export function normalizeImportValue(raw: unknown): ImportedValue {
   if (raw === null || raw === undefined) {
-    return { text: "—", type: "Vacío", icon: "remove_circle_outline" };
+    return { text: "—", type: "Buit", icon: "remove_circle_outline" };
   }
 
   const text = typeof raw === "object" ? JSON.stringify(raw) : String(raw);
   const clean = text.trim();
   if (!clean) {
-    return { text: "—", type: "Vacío", icon: "remove_circle_outline" };
+    return { text: "—", type: "Buit", icon: "remove_circle_outline" };
   }
 
   const lower = clean.toLowerCase();
   if (["true", "false", "si", "sí", "no"].includes(lower)) {
-    return { text: clean, type: "Booleano", icon: "toggle_on" };
+    return { text: clean, type: "Booleà", icon: "toggle_on" };
   }
 
   const numericCandidate = clean.replace(",", ".");
   if (isNumeric(numericCandidate)) {
-    return { text: clean, type: "Número", icon: "numbers" };
+    return { text: clean, type: "Nombre", icon: "numbers" };
   }
 
-  return { text: clean, type: "Texto", icon: "text_fields" };
+  return { text: clean, type: "Text", icon: "text_fields" };
 }

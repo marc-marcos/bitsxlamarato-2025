@@ -66,28 +66,28 @@ export class RegisterComponent {
     }
 
     if (!this.passwordsMatch()) {
-      this.error = "Las contraseñas no coinciden";
+      this.error = "Les contrassenyes no coincideixen";
       return;
     }
 
     const { username, password } = this.form.getRawValue();
     this.loading = true;
 
-    console.log("Enviando registro con:", { username, password });
+    console.log("Sending registration with:", { username, password });
 
     this.auth
       .register(username, password, false)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          console.log("Registro exitoso");
+          console.log("Registration successful");
           this.success = true;
           this.error = "";
           setTimeout(() => this.router.navigateByUrl("/login"), 2000);
           this.cdr.markForCheck();
         },
         error: (err: unknown) => {
-          console.error("Error en registro:", err);
+          console.error("Registration error:", err);
           this.error = err instanceof Error ? err.message : String(err);
           this.success = false;
           this.cdr.markForCheck();

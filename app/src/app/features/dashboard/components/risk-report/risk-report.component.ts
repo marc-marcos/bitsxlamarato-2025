@@ -21,8 +21,8 @@ type ProcesarDatosResponse = {
       <!-- Header -->
       <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white flex justify-between items-start shrink-0">
         <div>
-          <h2 class="text-2xl font-bold m-0">Resultado del modelo</h2>
-          <p class="text-blue-100 mt-1">Generado el {{ today | date:'medium' }}</p>
+          <h2 class="text-2xl font-bold m-0">Resultat del model</h2>
+          <p class="text-blue-100 mt-1">Generat el {{ today | date:'medium' }}</p>
         </div>
       </div>
 
@@ -33,7 +33,7 @@ type ProcesarDatosResponse = {
             <div class="lg:col-span-1 bg-gray-50 rounded-xl p-6 border border-gray-100">
               <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
                 <mat-icon class="text-blue-600">verified</mat-icon>
-                Predicción
+                Predicció
               </h3>
 
               <div class="flex items-center gap-4">
@@ -42,12 +42,12 @@ type ProcesarDatosResponse = {
                 </div>
                 <div>
                   <div class="text-lg font-bold text-gray-800">{{ riskLabel(result.prediccionClase) }}</div>
-                  <div class="text-sm text-gray-500">Confianza: {{ formatPct(predictedProbability) }}</div>
+                  <div class="text-sm text-gray-500">Confiança: {{ formatPct(predictedProbability) }}</div>
                 </div>
               </div>
 
               <div class="mt-6">
-                <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Distribución</div>
+                <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Distribució</div>
                 <div class="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
                   <div class="h-full rounded-full" [ngClass]="riskBarClass(result.prediccionClase)" [style.width.%]="(predictedProbability || 0) * 100"></div>
                 </div>
@@ -57,7 +57,7 @@ type ProcesarDatosResponse = {
             <div class="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-100">
               <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
                 <mat-icon class="text-indigo-600">analytics</mat-icon>
-                Probabilidades por clase
+                Probabilitats per classe
               </h3>
 
               <div class="space-y-4">
@@ -80,7 +80,7 @@ type ProcesarDatosResponse = {
             <div class="flex items-start gap-3">
               <mat-icon class="text-blue-600 mt-0.5">info</mat-icon>
               <div class="text-sm text-blue-900">
-                Usa el chatbot de la derecha para preguntar por el tratamiento adyuvante sugerido según la tabla VII.
+                Utilitza el chatbot de la dreta per preguntar pel tractament adyuvant suggerit segons la taula VII.
               </div>
             </div>
           </div>
@@ -91,8 +91,8 @@ type ProcesarDatosResponse = {
             <div class="flex items-start gap-3">
               <mat-icon class="text-gray-500 mt-0.5">warning</mat-icon>
               <div>
-                <div class="font-semibold">No hay resultados disponibles</div>
-                <div class="text-sm text-gray-500 mt-1">Vuelve a la página de datos y procesa un caso para ver el reporte.</div>
+                <div class="font-semibold">No hi ha resultats disponibles</div>
+                <div class="text-sm text-gray-500 mt-1">Torna a la pàgina de dades i processa un cas per veure l'informe.</div>
               </div>
             </div>
           </div>
@@ -137,17 +137,17 @@ export class RiskReportComponent {
   riskLabel(cls: number): string {
     switch (cls) {
       case 1:
-        return "Riesgo bajo";
+        return "Risc baix";
       case 2:
-        return "Riesgo intermedio";
+        return "Risc intermig";
       case 3:
-        return "Riesgo intermedio-alto";
+        return "Risc intermig-alt";
       case 4:
-        return "Riesgo alto";
+        return "Risc alt";
       case 5:
-        return "Avanzado";
+        return "Avançat";
       default:
-        return `Clase ${cls}`;
+        return `Classe ${cls}`;
     }
   }
 

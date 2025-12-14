@@ -40,9 +40,9 @@ type ChatMessage = {
       <div class="p-4 border-b border-gray-200 bg-blue-50">
         <div class="flex items-center gap-2">
           <mat-icon class="text-blue-600">smart_toy</mat-icon>
-          <h3 class="font-semibold text-gray-800 m-0">Asistente</h3>
+          <h3 class="font-semibold text-gray-800 m-0">Assistent</h3>
         </div>
-        <p class="text-xs text-gray-500 mt-1">Pregúntame sobre el riesgo y el tratamiento adyuvante.</p>
+        <p class="text-xs text-gray-500 mt-1">Pregunta'm sobre el risc i el tractament adyuvant.</p>
       </div>
 
       <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
@@ -67,7 +67,7 @@ type ChatMessage = {
             [(ngModel)]="newMessage" 
             (keyup.enter)="sendMessage()"
             [disabled]="isSending"
-            placeholder="Escribe tu pregunta..." 
+            placeholder="Escriu la teva pregunta..." 
             class="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 placeholder-gray-400"
           />
           <button 
@@ -140,18 +140,18 @@ export class ChatbotComponent implements OnInit {
 
   private buildIntroMessage(): string {
     const r = this.getProcesarDatosResponse();
-    if (!r) return "Hola, soy tu asistente clínico. Si ya tienes una clase de riesgo, dime cuál y te indicaré el tratamiento adyuvante según la tabla VII.";
+    if (!r) return "Hola, sóc el teu assistent clínic. Si ja tens una classe de risc, digues-me'n quina i et diré el tractament adyuvant segons la taula VII.";
 
     const cls = r.prediccionClase;
     const probs = [r.prob1, r.prob2, r.prob3, r.prob4, r.prob5].map((p) => this.normalizeProbability(p));
     const conf = probs[Math.max(0, Math.min(4, cls - 1))] ?? null;
 
     return [
-      `Resultado de /procesarDatos:`,
-      `- Clase: ${cls} (${this.riskLabel(cls)})`,
-      `- Confianza: ${this.formatPct(conf)}`,
+      `Resultat de /procesarDatos:`,
+      `- Classe: ${cls} (${this.riskLabel(cls)})`,
+      `- Confiança: ${this.formatPct(conf)}`,
       ``,
-      `Pregunta lo que necesites (tratamiento adyuvante, dudas, efectos, etc.).`,
+      `Pregunta el que necessitis (tractament adyuvant, dubtes, efectes, etc.).`,
     ].join("\n");
   }
 
@@ -168,10 +168,10 @@ export class ChatbotComponent implements OnInit {
     const conf = probs[Math.max(0, Math.min(4, cls - 1))] ?? null;
 
     this.dataContextForFirstPrompt = [
-      `Contexto del caso: el endpoint /procesarDatos ha devuelto clase ${cls} (${this.riskLabel(cls)}).`,
-      `Probabilidades: [${probs.map((p) => this.formatPct(p)).join(", ")}].`,
-      `Confianza clase predicha: ${this.formatPct(conf)}.`,
-      `Clasificación molecular: desconocida (si no se especifica).`,
+      `Context del cas: l'endpoint /procesarDatos ha retornat classe ${cls} (${this.riskLabel(cls)}).`,
+      `Probabilitats: [${probs.map((p) => this.formatPct(p)).join(", ")}].`,
+      `Confiança classe predicida: ${this.formatPct(conf)}.`,
+      `Classificació molecular: desconeguda (si no s'especifica).`,
     ].join(" ");
   }
 
@@ -187,17 +187,17 @@ export class ChatbotComponent implements OnInit {
   private riskLabel(cls: number): string {
     switch (cls) {
       case 1:
-        return "Riesgo bajo";
+        return "Risc baix";
       case 2:
-        return "Riesgo intermedio";
+        return "Risc intermig";
       case 3:
-        return "Riesgo intermedio-alto";
+        return "Risc intermig-alt";
       case 4:
-        return "Riesgo alto";
+        return "Risc alt";
       case 5:
-        return "Avanzado";
+        return "Avançat";
       default:
-        return `Clase ${cls}`;
+        return `Classe ${cls}`;
     }
   }
 
@@ -252,14 +252,14 @@ export class ChatbotComponent implements OnInit {
             ? resp.respuesta.trim()
             : typeof resp.error === "string" && resp.error.trim()
               ? resp.error.trim()
-              : "Respuesta vacía del backend.";
+              : "Resposta buida del backend.";
           this.messages.push({ role: "assistant", content: answer, time: this.nowTime(), kind: "chat" });
           this.apiHistory.push({ role: "assistant", content: answer });
           this.cdr.markForCheck();
         },
         error: (err: Error) => {
           this.error = err.message;
-          const answer = `No se pudo obtener respuesta del chatbot: ${err.message}`;
+          const answer = `No s'ha pogut obtenir resposta del chatbot: ${err.message}`;
           this.messages.push({ role: "assistant", content: answer, time: this.nowTime(), kind: "chat" });
           this.apiHistory.push({ role: "assistant", content: answer });
           this.cdr.markForCheck();
@@ -271,12 +271,12 @@ export class ChatbotComponent implements OnInit {
     if (err instanceof HttpErrorResponse) {
       const maybeDetail = (err.error && typeof err.error === "object" ? (err.error as any).detail : null) as unknown;
       if (typeof maybeDetail === "string" && maybeDetail.trim()) return new Error(maybeDetail.trim());
-      if (Array.isArray(maybeDetail)) return new Error("Datos inválidos (422).");
-      if (err.status === 401) return new Error("No autorizado. Inicia sesión de nuevo.");
+      if (Array.isArray(maybeDetail)) return new Error("Dades no vàlides (422).");
+      if (err.status === 401) return new Error("No autoritzat. Inicia sessió de nou.");
       if (err.status) return new Error(`Error del backend (${err.status}).`);
-      return new Error("No se pudo conectar con el backend.");
+      return new Error("No s'ha pogut connectar amb el backend.");
     }
     if (err instanceof Error) return err;
-    return new Error("Error inesperado.");
+    return new Error("Error inesperat.");
   }
 }

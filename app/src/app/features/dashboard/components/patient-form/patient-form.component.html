@@ -2,8 +2,8 @@
   <div class="max-w-5xl mx-auto">
     <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
       <div>
-        <h2 class="text-2xl font-bold text-gray-800">Datos para el backend</h2>
-        <p class="text-gray-500">Rellena el formulario o importa un JSON con los parámetros del modelo</p>
+        <h2 class="text-2xl font-bold text-gray-800">Dades pel backend</h2>
+        <p class="text-gray-500">Omple el formulari o importa un JSON amb els paràmetres del model</p>
       </div>
 
       <div class="flex items-center gap-3">
@@ -27,15 +27,15 @@
           <div class="flex items-start gap-3">
             <mat-icon class="text-blue-600 mt-0.5">tune</mat-icon>
             <div>
-              <div class="font-semibold text-gray-800">Modo de envío</div>
+              <div class="font-semibold text-gray-800">Mode d'enviament</div>
               <div class="text-sm text-gray-500">
-                Desactivado: procesa el caso. Activado: guarda una muestra en el dataset (requiere grupo de riesgo definitivo).
+                Desactivat: processa el cas. Activat: guarda una mostra en el dataset (requereix grup de risc definitiu).
               </div>
             </div>
           </div>
         </div>
         <mat-checkbox formControlName="sendToTraining" class="text-sm">
-          Nueva muestra para entrenamiento
+          Nova mostra per a entrenament
         </mat-checkbox>
       </mat-card>
 
@@ -70,7 +70,7 @@
 
                 <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
                 <mat-error *ngIf="form.get(field.key)?.touched && form.get(field.key)?.hasError('required')">
-                  Obligatorio
+                  Obligatori
                 </mat-error>
               </mat-form-field>
             </ng-container>
@@ -81,7 +81,7 @@
 
       <button mat-stroked-button type="button" class="bg-white" (click)="clearForm()">
         <mat-icon class="mr-2">restart_alt</mat-icon>
-        Limpiar
+        Netejar
       </button>
 
       <div class="flex justify-end">
@@ -94,15 +94,15 @@
           (click)="submitToBackend()"
         >
           <mat-icon class="mr-2">{{ isSubmitting ? 'hourglass_top' : (sendToTraining ? 'save' : 'cloud_upload') }}</mat-icon>
-          {{ isSubmitting ? 'Enviando...' : (sendToTraining ? 'Guardar' : 'Predecir') }}
+          {{ isSubmitting ? 'Enviant...' : (sendToTraining ? 'Guardar' : 'Predir') }}
         </button>
       </div>
       <div *ngIf="submitError" class="text-sm text-red-600 text-right -mt-4">{{ submitError }}</div>
       <div *ngIf="lastResponse" class="text-sm text-gray-600 text-right -mt-4">
-        Resultado: clase {{ lastResponse.prediccionClase }}
+        Resultat: classe {{ lastResponse.prediccionClase }}
       </div>
       <div *ngIf="lastTrainingResponse" class="text-sm text-gray-600 text-right -mt-4">
-        {{ lastTrainingResponse.message || lastTrainingResponse.mensaje || lastTrainingResponse.status || 'Muestra guardada' }}
+        {{ lastTrainingResponse.message || lastTrainingResponse.mensaje || lastTrainingResponse.status || 'Mostra guardada' }}
       </div>
     </form>
   </div>

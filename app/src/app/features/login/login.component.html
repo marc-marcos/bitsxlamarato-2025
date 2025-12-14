@@ -9,23 +9,23 @@
     <mat-card-content class="p-6 bg-white">
       <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
         <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Usuario</mat-label>
+          <mat-label>Usuari</mat-label>
           <input matInput type="text" formControlName="username" autocomplete="username" required />
           <mat-error *ngIf="form.controls.username.touched && form.controls.username.invalid">
-            El usuario es obligatorio
+            L'usuari és obligatori
           </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Contraseña</mat-label>
+          <mat-label>Contrasenya</mat-label>
           <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password"
             autocomplete="current-password" required />
           <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword"
-            [attr.aria-label]="hidePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+            [attr.aria-label]="hidePassword ? 'Mostrar contrasenya' : 'Ocultar contrasenya'">
             <mat-icon>{{ hidePassword ? "visibility" : "visibility_off" }}</mat-icon>
           </button>
           <mat-error *ngIf="form.controls.password.touched && form.controls.password.invalid">
-            La contraseña es obligatoria
+            La contrasenya és obligatòria
           </mat-error>
         </mat-form-field>
 
@@ -37,13 +37,13 @@
           type="submit" [disabled]="loading">
           <div class="flex items-center justify-center gap-2">
             <mat-progress-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-progress-spinner>
-            <span>{{ loading ? "Iniciando sesión..." : "Iniciar Sesión" }}</span>
+            <span>{{ loading ? "Iniciant sessió..." : "Iniciar Sessió" }}</span>
           </div>
         </button>
 
         <p class="text-center mt-4 text-sm text-gray-600">
-          ¿No tienes cuenta? <a routerLink="/register"
-            class="text-blue-600 font-semibold hover:underline ml-1 transition-colors">Regístrate aquí</a>
+          No tens compte? <a routerLink="/register"
+            class="text-blue-600 font-semibold hover:underline ml-1 transition-colors">Registra't aquí</a>
         </p>
       </form>
     </mat-card-content>

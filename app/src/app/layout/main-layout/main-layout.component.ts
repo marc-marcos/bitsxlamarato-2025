@@ -34,12 +34,12 @@ import { catchError, finalize, throwError, timeout } from 'rxjs';
           <a routerLink="/data" 
              routerLinkActive="bg-blue-700" 
              class="px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-500 transition-colors text-white no-underline">
-            Data
+            Dades
           </a>
           <a routerLink="/results" 
              routerLinkActive="bg-blue-700" 
              class="px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-500 transition-colors text-white no-underline">
-            Results
+            Resultats
           </a>
         </nav>
 
@@ -51,10 +51,10 @@ import { catchError, finalize, throwError, timeout } from 'rxjs';
           [disabled]="isRetraining"
           class="!text-white hover:bg-blue-700 rounded-full transition-colors disabled:opacity-50"
           matTooltip="Reentrenar"
-          aria-label="Reentrenar Modelo"
+          aria-label="Reentrenar Model"
         >
           <span class="flex items-center gap-2">
-            Reentrenar Modelo
+            Reentrenar Model
             <mat-icon class="ml-2">{{ isRetraining ? 'hourglass_top' : 'model_training' }}</mat-icon>
           </span>
         </button>
@@ -102,13 +102,13 @@ export class MainLayoutComponent {
         next: (resp) => {
           const msg = typeof resp?.mensaje === 'string' && resp.mensaje.trim()
             ? resp.mensaje.trim()
-            : 'Reentrenamiento iniciado.';
+            : 'Reentrenament iniciat.';
           this.snackBar.open(msg, 'OK', { duration: 4000 });
           this.cdr.markForCheck();
         },
         error: (err: Error) => {
-          console.error('Error al iniciar el reentrenamiento:', err);
-          this.snackBar.open(err.message, 'Cerrar', { duration: 6000 });
+          console.error('Error when starting retraining:', err);
+          this.snackBar.open(err.message, 'Tancar', { duration: 6000 });
           this.cdr.markForCheck();
         },
       });
@@ -125,11 +125,11 @@ export class MainLayoutComponent {
       if (typeof maybeDetail === 'string' && maybeDetail.trim()) return new Error(maybeDetail.trim());
       const maybeMensaje = (err.error && typeof err.error === 'object' ? (err.error as any).mensaje : null) as unknown;
       if (typeof maybeMensaje === 'string' && maybeMensaje.trim()) return new Error(maybeMensaje.trim());
-      if (err.status === 401) return new Error('No autorizado. Inicia sesión de nuevo.');
+      if (err.status === 401) return new Error('No autoritzat. Inicia sessió de nou.');
       if (err.status) return new Error(`Error del backend (${err.status}).`);
-      return new Error('No se pudo conectar con el backend.');
+      return new Error('No s\'ha pogut connectar amb el backend.');
     }
     if (err instanceof Error) return err;
-    return new Error('Error inesperado.');
+    return new Error('Error inesperat.');
   }
 }

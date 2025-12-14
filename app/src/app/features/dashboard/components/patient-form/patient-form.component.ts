@@ -106,19 +106,19 @@ const YES_NO_OPTIONS: ReadonlyArray<SelectOption> = [
 ];
 
 const TIPO_HISTOLOGICO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 1, label: "Hiperplasia con atípias" },
+  { value: 1, label: "Hiperplàsia amb atípies" },
   { value: 2, label: "Carcinoma endometroide" },
-  { value: 3, label: "Carcinoma seroso" },
-  { value: 4, label: "Carcinoma de células claras" },
-  { value: 5, label: "Carcinoma indiferenciado" },
-  { value: 6, label: "Carcinoma mixto" },
-  { value: 7, label: "Carcinoma escamoso" },
+  { value: 3, label: "Carcinoma serós" },
+  { value: 4, label: "Carcinoma de cèl·lules clares" },
+  { value: 5, label: "Carcinoma indiferenciat" },
+  { value: 6, label: "Carcinoma mixt" },
+  { value: 7, label: "Carcinoma escamós" },
   { value: 8, label: "Carcinosarcoma" },
   { value: 9, label: "Leiomiosarcoma" },
-  { value: 10, label: "Sarcoma de estroma endometrial" },
-  { value: 11, label: "Sarcoma indiferenciado" },
+  { value: 10, label: "Sarcoma d'estroma endometrial" },
+  { value: 11, label: "Sarcoma indiferenciat" },
   { value: 12, label: "Adenosarcoma" },
-  { value: 88, label: "Otros" },
+  { value: 88, label: "Altres" },
 ];
 
 const ASA_OPTIONS: ReadonlyArray<SelectOption> = [
@@ -134,7 +134,7 @@ const ASA_OPTIONS: ReadonlyArray<SelectOption> = [
 const BETA_CATENINA_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 0, label: "No" },
   { value: 1, label: "Sí" },
-  { value: 2, label: "No realizado" },
+  { value: 2, label: "No realitzat" },
 ];
 
 const FIGO_2023_OPTIONS: ReadonlyArray<SelectOption> = [
@@ -168,165 +168,165 @@ const FIGO_2018_OPTIONS: ReadonlyArray<SelectOption> = [
 
 const EST_PCTE_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 1, label: "Viva" },
-  { value: 2, label: "Muerta" },
-  { value: 3, label: "Desconocido" },
+  { value: 2, label: "Morta" },
+  { value: 3, label: "Desconegut" },
 ];
 
 const CAUSA_MUERTE_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 0, label: "Por el cáncer de endometrio" },
-  { value: 1, label: "Otras causas" },
+  { value: 0, label: "Pel càncer d'endometri" },
+  { value: 1, label: "Altres causes" },
 ];
 
 const LIBRE_ENFERM_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 0, label: "No" },
   { value: 1, label: "Sí" },
-  { value: 2, label: "Desconocido" },
+  { value: 2, label: "Desconegut" },
 ];
 
 const GRUPO_RIESGO_DEFINITIVO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 1, label: "Riesgo bajo" },
-  { value: 2, label: "Riesgo intermedio" },
-  { value: 3, label: "Riesgo intermedio-alto" },
-  { value: 4, label: "Riesgo alto" },
-  { value: 5, label: "Avanzados" },
+  { value: 1, label: "Risc baix" },
+  { value: 2, label: "Risc intermig" },
+  { value: 3, label: "Risc intermig-alt" },
+  { value: 4, label: "Risc alt" },
+  { value: 5, label: "Avançats" },
 ];
 
 const TTO_RECIDIVA_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 0, label: "No" },
-  { value: 1, label: "Curativo" },
-  { value: 2, label: "Paliativo" },
+  { value: 1, label: "Curativa" },
+  { value: 2, label: "Paliativa" },
 ];
 
 const GRADO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 1, label: "Bajo grado (G1-G2)" },
-  { value: 2, label: "Alto grado (G3)" },
+  { value: 1, label: "Baix grau (G1-G2)" },
+  { value: 2, label: "Alt grau (G3)" },
 ];
 
 const INFILTRACION_SUBJETIVO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 1, label: "No aplicado" },
+  { value: 1, label: "No aplicat" },
   { value: 2, label: "<50%" },
   { value: 3, label: ">50%" },
   { value: 4, label: "No valorable" },
 ];
 
 const INFILTRACION_OBJETIVO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 1, label: "No aplicado" },
+  { value: 1, label: "No aplicat" },
   { value: 2, label: "<50%" },
   { value: 3, label: ">50%" },
   { value: 4, label: "No valorable" },
 ];
 
 const ESTADIAJE_PRE_IQ_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 0, label: "Estadio I" },
-  { value: 1, label: "Estadio II" },
-  { value: 2, label: "Estadio III y IV" },
+  { value: 0, label: "Estadi I" },
+  { value: 1, label: "Estadi II" },
+  { value: 2, label: "Estadi III i IV" },
 ];
 
 const AP_CENTINELA_PELVICO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 0, label: "Negativo (pN0)" },
-  { value: 1, label: "Células tumorales aisladas (pN0(i+))" },
-  { value: 2, label: "Micrometástasis (pN1(mi))" },
-  { value: 3, label: "Macrometástasis (pN1)" },
+  { value: 0, label: "Negatiu (pN0)" },
+  { value: 1, label: "Cèl·lules tumorals aïllades (pN0(i+))" },
+  { value: 2, label: "Micrometàstasis (pN1(mi))" },
+  { value: 3, label: "Macrometàstasis (pN1)" },
   { value: 4, label: "pNx" },
 ];
 
 const AP_GANGLIOS_PARAORTICOS_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 0, label: "Negativo" },
-  { value: 1, label: "Células tumorales aisladas" },
-  { value: 2, label: "Micrometástasis" },
-  { value: 3, label: "Macrometástasis" },
+  { value: 0, label: "Negatiu" },
+  { value: 1, label: "Cèl·lules tumorals aïllades" },
+  { value: 2, label: "Micrometàstasis" },
+  { value: 3, label: "Macrometàstasis" },
 ];
 
 const ESTUDIO_GENETICO_OPTIONS: ReadonlyArray<SelectOption> = [
-  { value: 1, label: "Negativo" },
+  { value: 1, label: "Negatiu" },
   { value: 2, label: "BRCA1" },
   { value: 3, label: "BRCA2" },
   { value: 4, label: "Lynch" },
-  { value: 5, label: "Otros" },
-  { value: 6, label: "No realizado" },
+  { value: 5, label: "Altres" },
+  { value: 6, label: "No realitzat" },
 ];
 
 const FIELD_GROUPS: ReadonlyArray<FieldGroup> = [
   {
-    title: "Paciente",
+    title: "Pacient",
     icon: "person",
     fields: [
-      { key: "edad", label: "Edad", kind: "number", required: true, placeholder: "68" },
+      { key: "edad", label: "Edat", kind: "number", required: true, placeholder: "68" },
       { key: "imc", label: "IMC", kind: "number", required: true, placeholder: "39.4" },
       { key: "asa", label: "ASA", kind: "select", required: true, options: ASA_OPTIONS },
     ],
   },
   {
-    title: "Tumor y AP",
+    title: "Tumor i AP",
     icon: "biotech",
     fields: [
-      { key: "tipo_histologico", label: "Tipo histológico", kind: "select", required: true, options: TIPO_HISTOLOGICO_OPTIONS },
-      { key: "Grado", label: "Grado", kind: "select", required: true, options: GRADO_OPTIONS },
-      { key: "tamano_tumoral", label: "Tamaño tumoral (cm)", kind: "number", placeholder: "3.7" },
-      { key: "valor_de_ca125", label: "CA-125 (prequirúrgico inicial)", kind: "number", placeholder: "283" },
-      { key: "metasta_distan", label: "Metástasis a distancia", kind: "select", required: true, options: YES_NO_OPTIONS },
-      { key: "afectacion_linf", label: "Afectación linfovascular", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "tipo_histologico", label: "Tipus histològic", kind: "select", required: true, options: TIPO_HISTOLOGICO_OPTIONS },
+      { key: "Grado", label: "Grau", kind: "select", required: true, options: GRADO_OPTIONS },
+      { key: "tamano_tumoral", label: "Mida tumoral (cm)", kind: "number", placeholder: "3.7" },
+      { key: "valor_de_ca125", label: "CA-125 (preoperatori inicial)", kind: "number", placeholder: "283" },
+      { key: "metasta_distan", label: "Metàstasis a distància", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "afectacion_linf", label: "Afectació linfovascular", kind: "select", required: true, options: YES_NO_OPTIONS },
     ],
   },
   {
-    title: "Estadiaje",
+    title: "Estadiament",
     icon: "timeline",
     fields: [
-      { key: "FIGO2023", label: "FIGO 2023 (quirúrgico)", kind: "select", required: true, options: FIGO_2023_OPTIONS },
-      { key: "estadificacion_", label: "FIGO 2018 (quirúrgico)", kind: "select", required: true, options: FIGO_2018_OPTIONS },
-      { key: "estadiaje_pre_i", label: "Estadiaje pre-IQ", kind: "select", required: true, options: ESTADIAJE_PRE_IQ_OPTIONS },
-      { key: "ecotv_infiltsub", label: "Infiltración miometrial (subjetivo)", kind: "select", required: true, options: INFILTRACION_SUBJETIVO_OPTIONS },
-      { key: "ecotv_infiltobj", label: "Infiltración miometrial (objetivo, Karlsson)", kind: "select", required: true, options: INFILTRACION_OBJETIVO_OPTIONS },
+      { key: "FIGO2023", label: "FIGO 2023 (quirúrgic)", kind: "select", required: true, options: FIGO_2023_OPTIONS },
+      { key: "estadificacion_", label: "FIGO 2018 (quirúrgic)", kind: "select", required: true, options: FIGO_2018_OPTIONS },
+      { key: "estadiaje_pre_i", label: "Estadiament pre-IQ", kind: "select", required: true, options: ESTADIAJE_PRE_IQ_OPTIONS },
+      { key: "ecotv_infiltsub", label: "Infiltració miometrial (subjectiu)", kind: "select", required: true, options: INFILTRACION_SUBJETIVO_OPTIONS },
+      { key: "ecotv_infiltobj", label: "Infiltració miometrial (objectiu, Karlsson)", kind: "select", required: true, options: INFILTRACION_OBJETIVO_OPTIONS },
     ],
   },
   {
-    title: "Ganglios",
+    title: "Ganglis",
     icon: "hub",
     fields: [
-      { key: "AP_centinela_pelvico", label: "AP centinela pélvico", kind: "select", required: true, options: AP_CENTINELA_PELVICO_OPTIONS },
-      { key: "n_gangP_afec", label: "Nº ganglios pélvicos afectados", kind: "number", placeholder: "5" },
-      { key: "AP_glanPaor", label: "AP ganglios paraórticos", kind: "select", required: true, options: AP_GANGLIOS_PARAORTICOS_OPTIONS },
+      { key: "AP_centinela_pelvico", label: "AP centinella pèlvic", kind: "select", required: true, options: AP_CENTINELA_PELVICO_OPTIONS },
+      { key: "n_gangP_afec", label: "Nº ganglis pèlvics afectats", kind: "number", placeholder: "5" },
+      { key: "AP_glanPaor", label: "AP ganglis paraaòrtics", kind: "select", required: true, options: AP_GANGLIOS_PARAORTICOS_OPTIONS },
     ],
   },
   {
-    title: "Biomarcadores",
+    title: "Biomarcadors",
     icon: "science",
     fields: [
-      { key: "recep_est_porcent", label: "Receptores de estrógenos (%)", kind: "number", placeholder: "80", hint: "0-100" },
-      { key: "rece_de_Ppor", label: "Receptores de progesterona (%)", kind: "number", placeholder: "10", hint: "0-100" },
-      { key: "beta_cateninap", label: "Beta catenina (positividad nuclear)", kind: "select", required: true, options: BETA_CATENINA_OPTIONS },
-      { key: "estudio_genetico", label: "Estudio genético", kind: "select", required: true, options: ESTUDIO_GENETICO_OPTIONS },
+      { key: "recep_est_porcent", label: "Receptors d'estrògen (%)", kind: "number", placeholder: "80", hint: "0-100" },
+      { key: "rece_de_Ppor", label: "Receptors de progesterona (%)", kind: "number", placeholder: "10", hint: "0-100" },
+      { key: "beta_cateninap", label: "Beta catenina (positivitat nuclear)", kind: "select", required: true, options: BETA_CATENINA_OPTIONS },
+      { key: "estudio_genetico", label: "Estudi genètic", kind: "select", required: true, options: ESTUDIO_GENETICO_OPTIONS },
     ],
   },
   {
-    title: "Tratamiento",
+    title: "Tractament",
     icon: "medical_services",
     fields: [
-      { key: "tto_1_quirugico", label: "Tratamiento 1º quirúrgico", kind: "select", required: true, options: YES_NO_OPTIONS },
-      { key: "ciclos_tto_NAdj", label: "Nº ciclos de tto neo-adyuvante", kind: "number", placeholder: "6" },
-      { key: "Tributaria_a_Radioterapia", label: "¿Tributaria a radioterapia?", kind: "select", required: true, options: YES_NO_OPTIONS },
-      { key: "Tratamiento_RT", label: "Tratamiento RT", kind: "select", required: true, options: YES_NO_OPTIONS },
-      { key: "Tratamiento_sistemico", label: "Tratamiento sistémico", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "tto_1_quirugico", label: "Tractament 1º quirúrgic", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "ciclos_tto_NAdj", label: "Nº cicles de tractament neo-adyuvant", kind: "number", placeholder: "6" },
+      { key: "Tributaria_a_Radioterapia", label: "¿Tributari a radioterapia?", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "Tratamiento_RT", label: "Tractament RT", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "Tratamiento_sistemico", label: "Tractament sistèmic", kind: "select", required: true, options: YES_NO_OPTIONS },
     ],
   },
   {
-    title: "Recidiva y evolución",
+    title: "Recidiva i evolució",
     icon: "history",
     fields: [
       { key: "numero_de_recid", label: "Número de recidiva", kind: "number", placeholder: "1" },
-      { key: "tto_recidiva", label: "Tratamiento de la recidiva", kind: "select", required: true, options: TTO_RECIDIVA_OPTIONS },
-      { key: "Reseccion_macroscopica_complet", label: "Resección macroscópica completa", kind: "select", required: true, options: YES_NO_OPTIONS },
-      { key: "est_pcte", label: "Estado actual de la paciente", kind: "select", required: true, options: EST_PCTE_OPTIONS },
-      { key: "libre_enferm", label: "Libre de enfermedad", kind: "select", required: true, options: LIBRE_ENFERM_OPTIONS, defaultValue: 2 },
-      { key: "causa_muerte", label: "Causa de muerte", kind: "select", required: true, options: CAUSA_MUERTE_OPTIONS, defaultValue: 2 },
+      { key: "tto_recidiva", label: "Tractament de la recidiva", kind: "select", required: true, options: TTO_RECIDIVA_OPTIONS },
+      { key: "Reseccion_macroscopica_complet", label: "Resecció macroscòpica completa", kind: "select", required: true, options: YES_NO_OPTIONS },
+      { key: "est_pcte", label: "Estat actual de la pacient", kind: "select", required: true, options: EST_PCTE_OPTIONS },
+      { key: "libre_enferm", label: "Lliure de malaltia", kind: "select", required: true, options: LIBRE_ENFERM_OPTIONS, defaultValue: 2 },
+      { key: "causa_muerte", label: "Causa de mort", kind: "select", required: true, options: CAUSA_MUERTE_OPTIONS, defaultValue: 2 },
     ],
   },
   {
-    title: "Entrenamiento",
+    title: "Entrenament",
     icon: "school",
     onlyWhenTraining: true,
     fields: [
-      { key: "grupo_de_riesgo_definitivo", label: "Grupo de riesgo definitivo", kind: "select", required: true, options: GRUPO_RIESGO_DEFINITIVO_OPTIONS },
+      { key: "grupo_de_riesgo_definitivo", label: "Grup de risc definitiu", kind: "select", required: true, options: GRUPO_RIESGO_DEFINITIVO_OPTIONS },
     ],
   },
 ];
@@ -437,7 +437,7 @@ export class PatientFormComponent implements OnDestroy {
       this.submitError = null;
       this.applyJsonInput();
     } catch {
-      this.jsonParseError = "No se pudo leer el archivo.";
+      this.jsonParseError = "No s'ha pogut llegir l'arxiu.";
     } finally {
       if (input) input.value = "";
     }
@@ -454,13 +454,13 @@ export class PatientFormComponent implements OnDestroy {
     try {
       parsed = JSON.parse(raw);
     } catch {
-      this.jsonParseError = "JSON inválido.";
+      this.jsonParseError = "JSON no vàlid.";
       return;
     }
 
     const obj = this.extractCandidateObject(parsed);
     if (!obj) {
-      this.jsonParseError = "Formato JSON no reconocido.";
+      this.jsonParseError = "Format JSON no reconegut.";
       return;
     }
 
@@ -658,12 +658,12 @@ export class PatientFormComponent implements OnDestroy {
     if (err instanceof HttpErrorResponse) {
       const maybeDetail = (err.error && typeof err.error === "object" ? (err.error as any).detail : null) as unknown;
       if (typeof maybeDetail === "string" && maybeDetail.trim()) return new Error(maybeDetail.trim());
-      if (Array.isArray(maybeDetail)) return new Error("Datos inválidos (422). Revisa los campos.");
-      if (err.status === 401) return new Error("No autorizado. Inicia sesión de nuevo.");
+      if (Array.isArray(maybeDetail)) return new Error("Dades no vàlides (422). Revisa els camps.");
+      if (err.status === 401) return new Error("No autoritzat. Inicia sessió de nou.");
       if (err.status) return new Error(`Error del backend (${err.status}).`);
-      return new Error("No se pudo conectar con el backend.");
+      return new Error("No s'ha pogut connectar amb el backend.");
     }
     if (err instanceof Error) return err;
-    return new Error("Error inesperado.");
+    return new Error("Error inesperat.");
   }
 }
