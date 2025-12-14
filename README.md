@@ -1,4 +1,4 @@
-# Marlboro Predictor
+# CheckTheRisk
 
 This project aims to predict the post operation risk group of NSMP endometry patients. This prediction is done after the surgery and provides the medical staff with tools to decide the best course of treatment.
 
